@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>注文管理</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #dfe9f3, #ffffff);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: #f9fafb;
+            padding: 28px;
+            border-radius: 18px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .sub-text {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .search-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .search-area input[type="date"] {
+            padding: 11px 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .search-btn {
+            padding: 11px 18px;
+            background: #4facfe;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .search-btn:hover {
+            background: #2f80ed;
+        }
+
+        .action-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            display: inline-block;
+            padding: 11px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.25s;
+        }
+
+        .main-btn {
+            background: #4facfe;
+            color: white;
+        }
+
+        .main-btn:hover {
+            background: #2f80ed;
+        }
+
+        .sub-btn {
+            background: #f1f3f5;
+            color: #555;
+        }
+
+        .sub-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .section {
+            margin-top: 28px;
+        }
+
+        .section-title {
+            margin-bottom: 16px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .paid-title {
+            color: #2e7d32;
+        }
+
+        .unpaid-title {
+            color: #c62828;
+        }
+
+        .order-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .order-card {
+            background: #f9fafb;
+            padding: 24px;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+        }
+
+        .order-card h3 {
+            margin-top: 0;
+            margin-bottom: 14px;
+            color: #333;
+            font-size: 20px;
+        }
+
+        .info-row {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .status {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .paid-status {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .unpaid-status {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+
+        .pay-btn {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 11px 18px;
+            background: #4facfe;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .pay-btn:hover {
+            background: #2f80ed;
+        }
+
+        .cancel-btn {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 10px 18px;
+            background: #ffe5e5;
+            color: #c62828;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .cancel-btn:hover {
+            background: #ffcccc;
+        }
+
+
+        .empty-message {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+            color: #666;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .order-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                margin: 24px auto;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <h2>注文管理</h2>
+            <p class="sub-text">注文内容を日付ごとに確認できます。</p>
+
+            <form method="get" action="/admin/orders/list" class="search-area">
+                <input type="date" name="date" th:value="${selectedDate}">
+                <button type="submit" class="search-btn">検索</button>
+            </form>
+
+            <div class="action-links">
+                <a href="/admin/orders/today" class="action-btn main-btn">本日の注文一覧</a>
+                <a href="/admin/menu/list" class="action-btn sub-btn">メニュー管理</a>
+                <a href="/home" class="action-btn sub-btn">トップページ</a>
+            </div>
+        </div>
+
+        <div class="section">
+            <h3 class="section-title paid-title">支払い済みの注文</h3>
+
+            <div class="order-grid" th:if="${paidOrderList != null and !#lists.isEmpty(paidOrderList)}">
+                <div class="order-card" th:each="order : ${paidOrderList}">
+                    <h3>ユーザー名: <span th:text="${order.userName}"></span></h3>
+                    <p class="info-row">メニュー: <span th:text="${order.menuName}"></span></p>
+                    <p class="info-row">注文日: <span th:text="${order.orderDate}"></span></p>
+                    <span class="status paid-status">支払い済み</span>
+                    <form action="/admin/order/cancel" method="post">
+                        <input type="hidden" name="orderId" th:value="${order.orderId}">
+                        <button type="submit" class="cancel-btn">キャンセル</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="empty-message" th:if="${paidOrderList == null or #lists.isEmpty(paidOrderList)}">
+                支払い済みの注文はありません。
+            </div>
+        </div>
+
+        <div class="section">
+            <h3 class="section-title unpaid-title">未払いの注文</h3>
+
+            <div class="order-grid" th:if="${unpaidOrderList != null and !#lists.isEmpty(unpaidOrderList)}">
+                <div class="order-card" th:each="order : ${unpaidOrderList}">
+                    <h3>ユーザー名: <span th:text="${order.userName}"></span></h3>
+                    <p class="info-row">メニュー: <span th:text="${order.menuName}"></span></p>
+                    <p class="info-row">注文日: <span th:text="${order.orderDate}"></span></p>
+                    <span class="status unpaid-status">未支払い</span>
+                    <form action="/admin/orders/pay" method="post" style="margin-top:10px;">
+                        <input type="hidden" name="orderId" th:value="${order.orderId}">
+                        <button type="submit" class="pay-btn">入金確認</button>
+                    </form>
+
+                </div>
+            </div>
+
+            <div class="empty-message" th:if="${unpaidOrderList == null or #lists.isEmpty(unpaidOrderList)}">
+                未払いの注文はありません。
+            </div>
+        </div>
+
+    </div>
+
+</body>
+
+</html>

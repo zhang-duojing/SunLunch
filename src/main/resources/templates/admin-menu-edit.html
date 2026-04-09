@@ -1,0 +1,194 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>メニュー編集</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #dfe9f3, #ffffff);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 520px;
+            margin: 50px auto;
+            padding: 32px 30px;
+            background: #f9fafb;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        h2 {
+            margin: 0 0 10px 0;
+            color: #333;
+            text-align: center;
+        }
+
+        .sub-text {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .error {
+            color: #c62828;
+            background: #ffebee;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 4px;
+            margin-bottom: 18px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #4facfe;
+            outline: none;
+            box-shadow: 0 0 5px rgba(79, 172, 254, 0.4);
+        }
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .current-image {
+            margin: 6px 0 10px;
+        }
+
+        .current-image img {
+            width: 100%;
+            max-height: 220px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .check-row {
+            margin: -8px 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .check-row input {
+            width: auto;
+            margin: 0;
+        }
+
+        .btn-area {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .save-btn {
+            flex: 1;
+            padding: 12px;
+            background: #4facfe;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .save-btn:hover {
+            background: #2f80ed;
+        }
+
+        .back-btn {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            background: #f1f3f5;
+            color: #555;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.25s;
+        }
+
+        .back-btn:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>メニュー編集</h2>
+    <p class="sub-text">既存メニュー情報を更新できます</p>
+
+    <p th:if="${error}" th:text="${error}" class="error"></p>
+
+    <form method="post" action="/admin/menu/edit" >
+        <input type="hidden" name="id" th:value="${menu.id}">
+        <input type="hidden" name="sort" th:value="${sort}">
+
+        <label for="menuName">メニュー名</label>
+        <input id="menuName" name="menuName" type="text" th:value="${menu.menuName}" required>
+
+        <label for="description">説明</label>
+        <textarea id="description" name="description" required th:text="${menu.description}"></textarea>
+
+        <label for="price">価格</label>
+        <input id="price" name="price" type="number" th:value="${menu.price}" required>
+
+        <label for="menuDate">メニュー日付</label>
+        <input id="menuDate" name="menuDate" type="date" th:value="${menu.menuDate}" required>
+
+        <label>現在の画像</label>
+        <div class="current-image" th:if="${menu.imagePath != null}">
+            <img th:src="${menu.imagePath}" alt="menu image">
+        </div>
+        <p th:if="${menu.imagePath == null}" style="margin: 4px 0 12px; color: #777; font-size: 14px;">画像なし</p>
+
+        <label for="menuImageUrl">画像URL（任意）</label>
+        <input id="menuImageUrl" name="menuImageUrl" type="url" placeholder="https://example.com/menu.jpg" th:value="${menu.imagePath}">
+
+        <label class="check-row" for="removeImage">
+            <input id="removeImage" name="removeImage" type="checkbox">
+            画像を削除する
+        </label>
+
+        <div class="btn-area">
+            <button class="save-btn" type="submit">変更を保存</button>
+            <a class="back-btn" th:href="@{/admin/menu/list(sort=${sort})}">戻る</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
+
+

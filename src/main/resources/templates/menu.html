@@ -1,0 +1,255 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>本日のメニュー</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #dfe9f3, #ffffff);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: #f9fafb;
+            padding: 28px;
+            border-radius: 18px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .welcome {
+            margin-top: 10px;
+            color: #555;
+            font-size: 15px;
+        }
+
+        .action-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            display: inline-block;
+            padding: 11px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.25s;
+        }
+
+        .main-btn {
+            background: #4facfe;
+            color: white;
+        }
+
+        .main-btn:hover {
+            background: #2f80ed;
+        }
+
+        .sub-btn {
+            background: #f1f3f5;
+            color: #555;
+        }
+
+        .sub-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .logout-btn {
+            background: #ffe5e5;
+            color: #c62828;
+        }
+
+        .logout-btn:hover {
+            background: #ffcccc;
+        }
+
+        .message {
+            color: #2e7d32;
+            background: #e8f5e9;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .error {
+            color: #c62828;
+            background: #ffebee;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .warning {
+            color: #a06a00;
+            background: #fff3cd;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .menu-card {
+            background: #f9fafb;
+            padding: 24px;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+        }
+
+        .menu-image {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            margin-bottom: 14px;
+        }
+
+        .menu-card h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: #333;
+            font-size: 22px;
+        }
+
+        .description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.7;
+            min-height: 48px;
+            margin-bottom: 16px;
+        }
+
+        .price {
+            color: #2e7d32;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 14px;
+        }
+
+        .info-row {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .order-form {
+            margin-top: 18px;
+        }
+
+        .order-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: #4facfe;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .order-btn:hover {
+            background: #2f80ed;
+        }
+
+        .order-btn:disabled {
+            background: #d6d6d6;
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                margin: 24px auto;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <div class="header-top">
+            <h2>本日のメニュー</h2>
+        </div>
+
+        <p class="welcome">ようこそ、<span th:text="${user.name}"></span>さん</p>
+
+        <div class="action-links">
+            <a href="/home" class="action-btn sub-btn">トップページ</a>
+            <a href="/my-orders" class="action-btn main-btn">注文履歴</a>
+            <a href="/logout" class="action-btn logout-btn">ログアウト</a>
+        </div>
+
+        <p th:if="${message}" th:text="${message}" class="message"></p>
+        <p th:if="${error}" th:text="${error}" class="error"></p>
+        <p th:if="${!orderAvailable}" class="warning">注文時間は終了しました（23:45まで）</p>
+    </div>
+
+    <div class="menu-grid">
+        <div class="menu-card" th:each="menu : ${menuList}">
+            <img class="menu-image" th:if="${menu.imagePath != null}" th:src="${menu.imagePath}" alt="menu image">
+            <h3 th:text="${menu.menuName}"></h3>
+            <p class="description" th:text="${menu.description}"></p>
+            <p class="price">￥<span th:text="${menu.price}"></span></p>
+
+            <p class="info-row">メニュー日付: <span th:text="${menu.menuDate}"></span></p>
+            <p class="info-row">予約数: <span th:text="${menu.reservedCount}"></span></p>
+            <p class="info-row">支払済み: <span th:text="${menu.paidCount}"></span></p>
+
+            <form class="order-form" action="/order" method="post">
+                <input type="hidden" name="menuId" th:value="${menu.id}">
+                <button class="order-btn" type="submit" th:disabled="${!orderAvailable}">
+                    注文する
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
+
+

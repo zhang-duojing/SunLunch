@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ホーム</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #dfe9f3, #ffffff);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .wrapper {
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+
+        .header {
+            background: #f9fafb;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            padding: 30px;
+            text-align: center;
+            margin: 25px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-top h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .logout-link {
+            padding: 8px 14px;
+            border-radius: 8px;
+            background: #ffe5e5;
+            color: #c62828;
+            font-size: 13px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.25s;
+        }
+
+        .logout-link:hover {
+            background: #ffcccc;
+        }
+
+        .header h1 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 28px;
+        }
+
+        .header p {
+            margin: 0;
+            color: #555;
+            font-size: 16px;
+        }
+
+        .role-badge {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: bold;
+            background: #e8f0fe;
+            color: #2f80ed;
+        }
+
+        .admin-badge {
+            background: #fff3cd;
+            color: #a06a00;
+        }
+
+        .section {
+            background: #f9fafb;
+
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            padding: 28px;
+            margin-bottom: 25px;
+            margin-left: 25px;
+            margin-right: 25px;
+        }
+
+        .section h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 22px;
+            text-align: center;
+        }
+
+        .section-sub {
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+            margin-top: -8px;
+            margin-bottom: 22px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+        }
+
+        .card {
+            display: block;
+            text-decoration: none;
+            border-radius: 14px;
+            padding: 22px 18px;
+            transition: 0.25s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+        }
+
+        .card-title {
+            font-size: 17px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .card-text {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .admin-card {
+            background: #fff8e8;
+            color: #5f4300;
+            border: 1px solid #f1d58a;
+        }
+
+        .admin-card:hover {
+            background: #fff2cc;
+        }
+
+        .user-card {
+            background: #eef6ff;
+            color: #1f4f82;
+            border: 1px solid #bfdcff;
+        }
+
+        .user-card:hover {
+            background: #ddeeff;
+        }
+
+        /* .logout-area {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .logout-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 10px;
+            background: #f1f3f5;
+            color: #555;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.25s;
+        }
+
+        .logout-btn:hover {
+            background: #e0e0e0;
+        } */
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .wrapper {
+                margin: 25px auto;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <div class="header-top">
+            <h1>🍱 ランチ予約システム</h1>
+            <a href="/logout" class="logout-link">ログアウト</a>
+        </div>
+
+        <p>ようこそ、<span th:text="${user.name}"></span>さん</p>
+
+        <div th:if="${user.role == 'ADMIN'}" class="role-badge admin-badge">
+            管理者アカウント
+        </div>
+        <div th:if="${user.role != 'ADMIN'}" class="role-badge">
+            一般ユーザー
+        </div>
+    </div>
+
+    <div th:if="${user.role == 'ADMIN'}">
+        <div class="section">
+            <h2>管理者メニュー</h2>
+            <p class="section-sub">管理機能を優先して表示しています</p>
+
+            <div class="grid">
+                <a href="/admin/menu/list" class="card admin-card">
+                    <div class="card-title">メニュー管理</div>
+                    <div class="card-text">メニューの追加・編集・削除を行います。</div>
+                </a>
+
+                <a href="/admin/orders/list" class="card admin-card">
+                    <div class="card-title">注文管理</div>
+                    <div class="card-text">注文内容の一覧確認や管理を行います。</div>
+                </a>
+
+                <a href="/admin/orders/today" class="card admin-card">
+                    <div class="card-title">本日の注文状況</div>
+                    <div class="card-text">今日の注文状況を確認できます。</div>
+                </a>
+
+                <a href="/admin/orders/monthly" class="card admin-card">
+                    <div class="card-title">月次レポート</div>
+                    <div class="card-text">月ごとの注文状況や集計を確認できます。</div>
+                </a>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>一般ユーザー機能</h2>
+            <p class="section-sub">必要に応じて利用できます</p>
+
+            <div class="grid">
+                <a href="/menu" class="card user-card">
+                    <div class="card-title">メニューを見る</div>
+                    <div class="card-text">今日のメニュー内容を確認できます。</div>
+                </a>
+
+                <a href="/my-orders" class="card user-card">
+                    <div class="card-title">注文履歴</div>
+                    <div class="card-text">過去の注文内容を確認できます。</div>
+                </a>
+
+                <a href="/profile" class="card user-card">
+                    <div class="card-title">プロフィール</div>
+                    <div class="card-text">登録情報を確認できます。</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${user.role != 'ADMIN'}">
+        <div class="section">
+            <h2>ホームメニュー</h2>
+            <p class="section-sub">利用したい機能を選択してください</p>
+
+            <div class="grid">
+                <a href="/menu" class="card user-card">
+                    <div class="card-title">メニューを見る</div>
+                    <div class="card-text">本日のメニューを確認できます。</div>
+                </a>
+
+                <a href="/my-orders" class="card user-card">
+                    <div class="card-title">注文履歴</div>
+                    <div class="card-text">これまでの注文履歴を確認できます。</div>
+                </a>
+
+                <a href="/profile" class="card user-card">
+                    <div class="card-title">プロフィール</div>
+                    <div class="card-text">登録している情報を確認できます。</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- <div class="logout-area">
+        <a href="/logout" class="logout-btn">ログアウト</a> -->
+    </div>
+    </div>
+
+</body>
+
+</html>

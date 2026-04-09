@@ -1,0 +1,267 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>メニュー管理</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #dfe9f3, #ffffff);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: #f9fafb;
+            padding: 28px;
+            border-radius: 18px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .sub-text {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .error-message {
+            color: #c62828;
+            background: #ffebee;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .sort-form {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 14px;
+            font-size: 14px;
+            color: #444;
+        }
+
+        .sort-form select {
+            padding: 8px 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .action-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            display: inline-block;
+            padding: 11px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.25s;
+        }
+
+        .primary-btn {
+            background: #4facfe;
+            color: white;
+        }
+
+        .primary-btn:hover {
+            background: #2f80ed;
+        }
+
+        .sub-btn {
+            background: #f1f3f5;
+            color: #555;
+        }
+
+        .sub-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .menu-card {
+            background: #f9fafb;
+            padding: 24px;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+        }
+
+        .menu-image {
+            width: 100%;
+            height: 190px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            margin-bottom: 14px;
+        }
+
+        .menu-card h3 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: #333;
+            font-size: 22px;
+        }
+
+        .description {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.7;
+            min-height: 48px;
+            margin-bottom: 16px;
+        }
+
+        .info-row {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .price {
+            color: #2e7d32;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .edit-btn,
+        .delete-btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.25s;
+        }
+
+        .edit-btn {
+            background: #4facfe;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background: #2f80ed;
+        }
+
+        .delete-btn {
+            background: #ffe5e5;
+            color: #c62828;
+        }
+
+        .delete-btn:hover {
+            background: #ffcccc;
+        }
+
+        form {
+            margin: 0;
+        }
+
+        @media (max-width: 768px) {
+            .menu-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                margin: 24px auto;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="header">
+        <div class="header-top">
+            <h2>メニュー管理</h2>
+        </div>
+
+        <p class="sub-text">メニューの確認・編集・削除ができます</p>
+
+        <p th:if="${error}" th:text="${error}" class="error-message"></p>
+
+        <form class="sort-form" method="get" action="/admin/menu/list">
+            <label for="sort">並び順:</label>
+            <select id="sort" name="sort" onchange="this.form.submit()">
+                <option value="dateAsc" th:selected="${sort == 'dateAsc'}">日付の古い順</option>
+                <option value="dateDesc" th:selected="${sort == 'dateDesc'}">日付の新しい順</option>
+            </select>
+        </form>
+
+        <div class="action-links">
+            <a class="action-btn primary-btn" href="/admin/menu/new">新規メニューを追加</a>
+            <a class="action-btn sub-btn" href="/menu">注文用メニュー</a>
+            <a class="action-btn sub-btn" href="/home">トップページ</a>
+        </div>
+    </div>
+
+    <div class="menu-grid">
+        <div class="menu-card" th:each="menu : ${menuList}">
+            <img class="menu-image" th:if="${menu.imagePath != null}" th:src="${menu.imagePath}" alt="menu image">
+            <h3 th:text="${menu.menuName}"></h3>
+
+            <p class="description" th:text="${menu.description}"></p>
+
+            <p class="price">￥<span th:text="${menu.price}"></span></p>
+            <p class="info-row">提供日: <span th:text="${menu.menuDate}"></span></p>
+
+            <div class="card-actions">
+                <a class="edit-btn" th:href="@{/admin/menu/edit(menuId=${menu.id},sort=${sort})}">編集</a>
+
+                <form action="/admin/menu/delete" method="post">
+                    <input type="hidden" name="menuId" th:value="${menu.id}">
+                    <input type="hidden" name="sort" th:value="${sort}">
+                    <button class="delete-btn" type="submit">削除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
+
+
+

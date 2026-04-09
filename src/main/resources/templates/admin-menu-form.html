@@ -1,0 +1,167 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>新規メニュー登録</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #dfe9f3, #ffffff);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 480px;
+            margin: 50px auto;
+            padding: 32px 30px;
+            background: #f9fafb;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        h2 {
+            margin: 0 0 10px 0;
+            color: #333;
+            text-align: center;
+        }
+
+        .sub-text {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .message {
+            color: #2e7d32;
+            background: #e8f5e9;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .error {
+            color: #c62828;
+            background: #ffebee;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            margin-top: 4px;
+            margin-bottom: 18px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #4facfe;
+            outline: none;
+            box-shadow: 0 0 5px rgba(79, 172, 254, 0.4);
+        }
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: #4facfe;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .submit-btn:hover {
+            background: #2f80ed;
+        }
+
+        .link-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .back-link {
+            flex: 1;
+            min-width: 180px;
+            text-align: center;
+            padding: 11px 16px;
+            background: #f1f3f5;
+            color: #555;
+            text-decoration: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.25s;
+        }
+
+        .back-link:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>新規メニュー登録</h2>
+    <p class="sub-text">メニュー情報を入力してください</p>
+
+    <p th:if="${message}" th:text="${message}" class="message"></p>
+    <p th:if="${error}" th:text="${error}" class="error"></p>
+
+    <form method="post" action="/admin/menu/new" >
+        <label for="menuName">メニュー名</label>
+        <input id="menuName" name="menuName" type="text" placeholder="メニュー名を入力" th:value="${menuName}" required>
+
+        <label for="description">説明</label>
+        <textarea id="description" name="description" placeholder="メニュー説明を入力" th:text="${description}" required></textarea>
+
+        <label for="price">価格</label>
+        <input id="price" name="price" type="number" placeholder="価格を入力" th:value="${price}" required>
+
+        <label for="menuDate">メニュー日付</label>
+        <input id="menuDate" name="menuDate" type="date" th:value="${menuDate}" required>
+
+        <label for="menuImageUrl">メニュー画像URL（任意）</label>
+        <input id="menuImageUrl" name="menuImageUrl" type="url" placeholder="https://example.com/menu.jpg">
+
+        <button class="submit-btn" type="submit">メニューを登録</button>
+    </form>
+
+    <div class="link-area">
+        <a class="back-link" href="/menu">メニュー一覧へ戻る</a>
+        <a class="back-link" href="/admin/menu/list">メニュー管理へ戻る</a>
+    </div>
+</div>
+
+</body>
+</html>
+
+

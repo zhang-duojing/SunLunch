@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>本日の注文一覧</title>
+
+  <style>
+    body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(135deg, #dfe9f3, #ffffff);
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+
+    .header {
+        background: #f9fafb;
+        padding: 28px;
+        border-radius: 18px;
+        margin-bottom: 24px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    }
+
+    .header h2 {
+        margin: 0;
+        color: #333;
+    }
+
+    .sub-text {
+        margin-top: 10px;
+        color: #666;
+        font-size: 14px;
+    }
+
+    .action-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 20px;
+    }
+
+    .action-btn {
+        display: inline-block;
+        padding: 11px 18px;
+        border-radius: 10px;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+        transition: 0.25s;
+    }
+
+    .main-btn {
+        background: #4facfe;
+        color: white;
+    }
+
+    .main-btn:hover {
+        background: #2f80ed;
+    }
+
+    .sub-btn {
+        background: #f1f3f5;
+        color: #555;
+    }
+
+    .sub-btn:hover {
+        background: #e0e0e0;
+    }
+
+    .summary-top {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        margin-top: 24px;
+    }
+
+    .summary-box {
+        background: #ffffff;
+        padding: 22px;
+        border-radius: 16px;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        text-align: center;
+    }
+
+    .summary-label {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .summary-value {
+        font-size: 28px;
+        font-weight: bold;
+        color: #333;
+    }
+
+    .total-value {
+        color: #2f80ed;
+    }
+
+    .paid-value {
+        color: #2e7d32;
+    }
+
+    .unpaid-value {
+        color: #c62828;
+    }
+
+    .section-title {
+        margin: 30px 0 16px 0;
+        font-size: 22px;
+        color: #333;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    .summary-card {
+        background: #f9fafb;
+        padding: 24px;
+        border-radius: 18px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+    }
+
+    .summary-card h3 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        color: #333;
+        font-size: 22px;
+    }
+
+    .count-label {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 6px;
+    }
+
+    .count {
+        color: #2e7d32;
+        font-size: 24px;
+        font-weight: bold;
+    }
+
+    .empty-message {
+        background: #f9fafb;
+        padding: 24px;
+        border-radius: 18px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+        text-align: center;
+        color: #666;
+        font-size: 15px;
+    }
+
+    @media (max-width: 768px) {
+        .summary-top,
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .container {
+            margin: 24px auto;
+            padding: 15px;
+        }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <h2>本日の注文一覧</h2>
+    <p class="sub-text">本日の注文状況を集計して表示しています。</p>
+
+    <div class="action-links">
+      <a href="/admin/orders/list" class="action-btn main-btn">注文管理</a>
+      <a href="/admin/menu/list" class="action-btn sub-btn">メニュー管理</a>
+      <a href="/home" class="action-btn sub-btn">トップページ</a>
+    </div>
+
+    <div class="summary-top">
+      <div class="summary-box">
+        <div class="summary-label">全注文数</div>
+        <div class="summary-value total-value" th:text="${totalOrders}"></div>
+      </div>
+
+      <div class="summary-box">
+        <div class="summary-label">支払い済み</div>
+        <div class="summary-value paid-value" th:text="${paidCount}"></div>
+      </div>
+
+      <div class="summary-box">
+        <div class="summary-label">未払い</div>
+        <div class="summary-value unpaid-value" th:text="${unpaidCount}"></div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="section-title">メニュー別集計</h3>
+
+  <div class="summary-grid" th:if="${summaryList != null and !#lists.isEmpty(summaryList)}">
+    <div class="summary-card" th:each="summary : ${summaryList}">
+      <h3 th:text="${summary.menuName}"></h3>
+      <p class="count-label">注文数</p>
+      <p class="count"><span th:text="${summary.count}"></span></p>
+    </div>
+  </div>
+
+  <div class="empty-message" th:if="${summaryList == null or #lists.isEmpty(summaryList)}">
+    本日の注文データはありません。
+  </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>注文履歴</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #dfe9f3, #ffffff);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: #f9fafb;
+            padding: 28px;
+            border-radius: 18px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .welcome {
+            margin-top: 10px;
+            color: #555;
+            font-size: 15px;
+        }
+
+        .action-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            display: inline-block;
+            padding: 11px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.25s;
+        }
+
+        .main-btn {
+            background: #4facfe;
+            color: white;
+        }
+
+        .main-btn:hover {
+            background: #2f80ed;
+        }
+
+        .sub-btn {
+            background: #f1f3f5;
+            color: #555;
+        }
+
+        .sub-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .logout-btn {
+            background: #ffe5e5;
+            color: #c62828;
+        }
+
+        .logout-btn:hover {
+            background: #ffcccc;
+        }
+
+        .order-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .order-card {
+            background: #f9fafb;
+            padding: 24px;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+        }
+
+        .order-card h3 {
+            margin-top: 0;
+            margin-bottom: 14px;
+            color: #333;
+            font-size: 22px;
+        }
+
+        .price {
+            color: #2e7d32;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+
+        .info-row {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .status {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .paid-status {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .unpaid-status {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .btn-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .pay-btn,
+        .cancel-btn {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .pay-btn {
+            background: #4facfe;
+            color: white;
+        }
+
+        .pay-btn:hover {
+            background: #2f80ed;
+        }
+
+        .cancel-btn {
+            background: #ffe5e5;
+            color: #c62828;
+        }
+
+        .cancel-btn:hover {
+            background: #ffcccc;
+        }
+
+        form {
+            margin: 0;
+        }
+
+        .empty-message {
+            background: #f9fafb;
+            padding: 24px;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+            text-align: center;
+            color: #666;
+            font-size: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .order-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                margin: 24px auto;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <h2>注文履歴</h2>
+            <p class="welcome">ようこそ、<span th:text="${user.name}"></span>さん</p>
+
+            <div class="action-links">
+                <a href="/home" class="action-btn sub-btn">トップページ</a>
+                <a href="/menu" class="action-btn main-btn">メニューを見る</a>
+                <a href="/logout" class="action-btn logout-btn">ログアウト</a>
+            </div>
+        </div>
+
+        <div class="order-grid" th:if="${orderViewList != null and !#lists.isEmpty(orderViewList)}">
+            <div class="order-card" th:each="order : ${orderViewList}">
+                <h3 th:text="${order.menuName}"></h3>
+
+                <p class="price">¥<span th:text="${order.price}"></span></p>
+                <p class="info-row">注文日: <span th:text="${order.orderDate}"></span></p>
+
+                <p class="info-row">
+                    支払い状況:
+                    <span th:if="${order.paid == true}" class="status paid-status">お支払い済み</span>
+                    <span th:if="${order.paid != true}" class="status unpaid-status">未支払い</span>
+                </p>
+
+                <div class="btn-area">
+                    <!-- <form th:if="${order.paid != true}" action="/order/pay" method="post">
+          <input type="hidden" name="orderId" th:value="${order.orderId}">
+          <button type="submit" class="pay-btn">支払い</button>
+        </form> -->
+
+                    <form th:if="${order.paid != true}" action="/order/cancel" method="post">
+                        <input type="hidden" name="orderId" th:value="${order.orderId}">
+                        <button type="submit" class="cancel-btn">キャンセル
+                            <p th:if="${order.paid == true}" class="info-row" style="color:#999;">
+                                支払い済みのためキャンセルできません。
+                            </p>
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="empty-message" th:if="${orderViewList == null or #lists.isEmpty(orderViewList)}">
+            注文履歴はまだありません。
+        </div>
+
+    </div>
+
+</body>
+
+</html>

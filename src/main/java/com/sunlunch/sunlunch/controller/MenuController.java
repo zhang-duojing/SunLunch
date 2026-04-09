@@ -62,13 +62,13 @@ public class MenuController {
         model.addAttribute("menuList", menuViewList);
 
         if (closed != null) {
-            model.addAttribute("error", "Order time for today is closed.");
+            model.addAttribute("error", "本日の注文受付は終了しました。");
         }
         if (success != null) {
-            model.addAttribute("message", "Order completed.");
+            model.addAttribute("message", "注文が完了しました。");
         }
         if (alreadyOrdered != null) {
-            model.addAttribute("error", "You already ordered today.");
+            model.addAttribute("error", "本日はすでに注文済みです。");
         }
 
         LocalTime now = LocalTime.now();
@@ -117,7 +117,7 @@ public class MenuController {
 
         menuRepository.save(menu);
 
-        model.addAttribute("message", "Menu created.");
+        model.addAttribute("message", "メニューを作成しました。");
         return "admin-menu-form";
     }
 
@@ -162,7 +162,7 @@ public class MenuController {
 
         boolean hasOrders = orderRepository.existsByMenuId(menuId);
         if (hasOrders) {
-            model.addAttribute("error", "This menu already has orders and cannot be deleted.");
+            model.addAttribute("error", "このメニューはすでに注文があるため、削除できません。");
             model.addAttribute("menuList", getAdminMenuList(normalizedSort));
             model.addAttribute("sort", normalizedSort);
             return "admin-menu-list";
@@ -189,7 +189,7 @@ public class MenuController {
 
         boolean hasOrders = orderRepository.existsByMenuId(menuId);
         if (hasOrders) {
-            model.addAttribute("error", "This menu already has orders and cannot be edited.");
+            model.addAttribute("error", "このメニューはすでに注文があるため、編集できません。");
             model.addAttribute("menuList", getAdminMenuList(normalizedSort));
             model.addAttribute("sort", normalizedSort);
             return "admin-menu-list";

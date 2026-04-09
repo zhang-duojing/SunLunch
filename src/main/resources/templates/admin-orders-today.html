@@ -221,4 +221,15 @@
 </div>
 
 </body>
+<script>
+    (function () {
+        window.addEventListener("pageshow", function (event) {
+            var nav = performance.getEntriesByType("navigation");
+            var isBackForward = nav.length > 0 && nav[0].type === "back_forward";
+            if (event.persisted || isBackForward) {
+                window.location.reload();
+            }
+        });
+    })();
+</script>
 </html>

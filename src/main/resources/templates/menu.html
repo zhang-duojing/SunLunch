@@ -132,9 +132,11 @@
         .menu-image {
             width: 100%;
             height: 190px;
-            object-fit: cover;
+            object-fit: contain;
             border-radius: 12px;
             border: 1px solid #ddd;
+            padding: 6px;
+            background: #eef2f7;
             margin-bottom: 14px;
         }
 
@@ -250,6 +252,18 @@
 </div>
 
 </body>
+<script>
+    (function () {
+        window.addEventListener("pageshow", function (event) {
+            var nav = performance.getEntriesByType("navigation");
+            var isBackForward = nav.length > 0 && nav[0].type === "back_forward";
+            if (event.persisted || isBackForward) {
+                window.location.reload();
+            }
+        });
+    })();
+</script>
 </html>
+
 
 

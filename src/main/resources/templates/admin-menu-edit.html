@@ -82,8 +82,9 @@
         .current-image img {
             width: 100%;
             max-height: 220px;
-            object-fit: cover;
+            object-fit: contain;
             border-radius: 10px;
+            background: #eef2f7;
             border: 1px solid #ddd;
         }
 
@@ -189,6 +190,18 @@
 </div>
 
 </body>
+<script>
+    (function () {
+        window.addEventListener("pageshow", function (event) {
+            var nav = performance.getEntriesByType("navigation");
+            var isBackForward = nav.length > 0 && nav[0].type === "back_forward";
+            if (event.persisted || isBackForward) {
+                window.location.reload();
+            }
+        });
+    })();
+</script>
 </html>
+
 
 

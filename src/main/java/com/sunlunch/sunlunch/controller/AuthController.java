@@ -3,6 +3,7 @@ package com.sunlunch.sunlunch.controller;
 import com.sunlunch.sunlunch.entity.User;
 import com.sunlunch.sunlunch.repository.UserRepository;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletResponse;
 
 
 import org.springframework.stereotype.Controller;
@@ -60,12 +61,13 @@ public class AuthController {
     return "redirect:/home";
 }
 @GetMapping("/home")
-    public String homePage(HttpSession session,Model model){
+    public String homePage(HttpSession session,Model model, HttpServletResponse response){
        User loginUser = (User) session.getAttribute("loginUser");
 
        if(loginUser ==null){
            return "redirect:/login";
        }
+       applyNoCacheHeaders(response);
        model.addAttribute("user",loginUser);
        return "home";
 }
@@ -73,6 +75,12 @@ public class AuthController {
     public String logout(HttpSession session){
        session.invalidate();
        return "redirect:/login";
+}
+
+private void applyNoCacheHeaders(HttpServletResponse response) {
+    response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
 }
 
 @GetMapping("/profile")

@@ -3,6 +3,9 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>ホーム</title>
 
     <style>
@@ -292,5 +295,16 @@
     </div>
 
 </body>
+<script>
+    (function () {
+        window.addEventListener("pageshow", function (event) {
+            var nav = performance.getEntriesByType("navigation");
+            var isBackForward = nav.length > 0 && nav[0].type === "back_forward";
+            if (event.persisted || isBackForward) {
+                window.location.reload();
+            }
+        });
+    })();
+</script>
 
 </html>

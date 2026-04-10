@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>新規登録</title>
@@ -39,7 +40,8 @@
 
         input {
             width: 100%;
-            padding: 12px;
+            height: 44px;
+            padding: 0 12px;
             margin-bottom: 18px;
             border: 1px solid #ddd;
             border-radius: 8px;
@@ -105,31 +107,104 @@
         .link-area a:hover {
             text-decoration: underline;
         }
+
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 18px;
+        }
+
+        .password-wrapper input {
+            margin-bottom: 0;
+            padding-right: 42px;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            margin: 0;
+
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            outline: none;
+            color: #666;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .toggle-btn:hover,
+        .toggle-btn:focus,
+        .toggle-btn:active {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            outline: none;
+            color: #666;
+        }
     </style>
 </head>
+
 <body>
-<div class="container">
-    <h2>新規登録</h2>
+    <div class="container">
+        <h2>新規登録</h2>
 
-    <p th:if="${message}" th:text="${message}" class="message"></p>
-    <p th:if="${error}" th:text="${error}" class="error"></p>
+        <p th:if="${message}" th:text="${message}" class="message"></p>
+        <p th:if="${error}" th:text="${error}" class="error"></p>
 
-    <form method="post" action="/register">
-        <label for="email">メールアドレス</label>
-        <input type="email" name="email" id="email" placeholder="メールアドレスを入力してください" required>
+        <form method="post" action="/register">
+            <label for="email">メールアドレス</label>
+            <input type="email" name="email" id="email" placeholder="メールアドレスを入力してください" required>
 
-        <label for="name">名前</label>
-        <input type="text" name="name" id="name" placeholder="名前を入力してください" required>
+            <label for="name">名前</label>
+            <input type="text" name="name" id="name" placeholder="名前を入力してください" required>
 
-        <label for="password">パスワード</label>
-        <input type="password" name="password" id="password" placeholder="パスワードを入力してください" required>
+            <label for="password">パスワード</label>
+            <div class="password-wrapper">
+                <input type="password" name="password" id="password" placeholder="パスワードを入力してください" required>
+                <button type="button" id="togglePassword" class="toggle-btn">👀</button>
+            </div>
 
-        <button type="submit">新規登録</button>
-    </form>
 
-    <div class="link-area">
-        <a href="/login">ログインはこちら</a>
+            <button type="submit">新規登録</button>
+        </form>
+
+        <div class="link-area">
+            <a href="/login">ログインはこちら</a>
+        </div>
     </div>
-</div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const passwordInput = document.getElementById("password");
+            const toggleButton = document.getElementById("togglePassword");
+
+            toggleButton.addEventListener("click", function () {
+                if (passwordInput.type === "password") {
+                    passwordInput.type = "text";
+                    toggleButton.textContent = "🙈";
+                }
+                else {
+                    passwordInput.type = "password";
+                    toggleButton.textContent = "👀";
+                }
+            });
+        });
+    </script>
+
 </body>
+
 </html>

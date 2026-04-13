@@ -174,6 +174,7 @@
         }
 
         .toggle-btn {
+            display: none;
             position: absolute;
             right: 12px;
             top: 50%;
@@ -191,7 +192,7 @@
             outline: none;
             color: #666;
 
-            display: flex;
+            /* display: flex; */
             align-items: center;
             justify-content: center;
 
@@ -209,7 +210,12 @@
             outline: none;
             color: #666;
         }
-/*ブラウザ持つパスワード表示機能閉じる*/
+
+        .toggle-btn.show {
+            display: flex;
+        }
+
+        /*ブラウザ持つパスワード表示機能閉じる*/
         input::-ms-reveal {
             display: none;
         }
@@ -277,41 +283,46 @@
 </body>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const newInput = document.getElementById("newPassword");
-        const oldInput = document.getElementById("oldPassword");
-        const toggleNew = document.getElementById("toggleNew");
-        const toggleOld = document.getElementById("toggleOld");
+        function setupPasswordToggle(inputId, buttonId) {
+            const input = document.getElementById(inputId);
+            const button = document.getElementById(buttonId);
 
-        toggleNew.addEventListener("click", function () {
-            if (newInput.type === "password") {
-                newInput.type = "text";
-                toggleNew.textContent = "🙈";
+            function updateButton() {
+                if (input.value.length > 0) {
+                    button.classList.add("show");
+                } else {
+                    button.classList.remove("show");
+                    input.type = "password";
+                    button.textContent = "👁️";
+                }
             }
-            else {
-                newInput.type = "password";
-                toggleNew.textContent = "👀";
-            }
-        })
-        toggleOld.addEventListener("click", function () {
-            if (oldInput.type === "password") {
-                oldInput.type = "text";
-                toggleOld.textContent = "🙈";
-            }
-            else {
-                oldInput.type = "password";
-                toggleOld.textContent = "👀";
-            }
-        })
-    })
-        (function () {
-            window.addEventListener("pageshow", function (event) {
-                var nav = performance.getEntriesByType("navigation");
-                var isBackForward = nav.length > 0 && nav[0].type === "back_forward";
-                if (event.persisted || isBackForward) {
-                    window.location.reload();
+
+            button.addEventListener("click", function () {
+                if (input.type === "password") {
+                    input.type = "text";
+                    button.textContent = "🙈";
+                } else {
+                    input.type = "password";
+                    button.textContent = "👁️";
                 }
             });
-        })();
+
+            input.addEventListener("input", updateButton);
+            updateButton();
+        }
+
+        setupPasswordToggle("oldPassword", "toggleOld");
+        setupPasswordToggle("newPassword", "toggleNew");
+    });
+    (function () {
+        window.addEventListener("pageshow", function (event) {
+            var nav = performance.getEntriesByType("navigation");
+            var isBackForward = nav.length > 0 && nav[0].type === "back_forward";
+            if (event.persisted || isBackForward) {
+                window.location.reload();
+            }
+        });
+    })();
 </script>
 
 </html>

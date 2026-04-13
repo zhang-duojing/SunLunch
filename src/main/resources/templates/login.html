@@ -120,6 +120,7 @@
         }
 
         .toggle-btn {
+            display: none;
             position: absolute;
             right: 12px;
             top: 50%;
@@ -137,7 +138,7 @@
             outline: none;
             color: #666;
 
-            display: flex;
+            /* display: flex; */
             align-items: center;
             justify-content: center;
 
@@ -155,6 +156,11 @@
             outline: none;
             color: #666;
         }
+
+        .toggle-btn.show {
+            display: flex;
+        }
+
         /*ブラウザ持つパスワード表示機能閉じる*/
         input::-ms-reveal {
             display: none;
@@ -195,6 +201,17 @@
             const passwordInput = document.getElementById("password");
             const toggleButton = document.getElementById("togglePassword");
 
+            function updateToggleButton() {
+                if (passwordInput.value.length > 0) {
+                    toggleButton.classList.add("show");
+                }
+                else {
+                    toggleButton.classList.remove("show");
+                    passwordInput.type = "password";
+                    toggleButton.textContent = "👀";
+                }
+            }
+
             toggleButton.addEventListener("click", function () {
                 if (passwordInput.type === "password") {
                     passwordInput.type = "text";
@@ -205,6 +222,9 @@
                     toggleButton.textContent = "👀";
                 }
             });
+            passwordInput.addEventListener("input", updateToggleButton);
+
+            updateToggleButton();
         });
     </script>
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>プロフィール</title>
@@ -160,71 +161,157 @@
                 padding: 15px;
             }
         }
+
+        .password-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 18px;
+        }
+
+        .password-wrapper input {
+            margin-bottom: 0;
+            padding-right: 42px;
+        }
+
+        .toggle-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            margin: 0;
+
+            background: transparent;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            outline: none;
+            color: #666;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+        }
+
+        .toggle-btn:hover,
+        .toggle-btn:focus,
+        .toggle-btn:active {
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            outline: none;
+            color: #666;
+        }
+/*ブラウザ持つパスワード表示機能閉じる*/
+        input::-ms-reveal {
+            display: none;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <div class="header">
-        <h2>プロフィール</h2>
-        <p class="sub-text">登録情報の確認・更新を行うことができます。</p>
+        <div class="header">
+            <h2>プロフィール</h2>
+            <p class="sub-text">登録情報の確認・更新を行うことができます。</p>
 
-        <div class="action-links">
-            <a href="/home" class="action-btn sub-btn">トップページへ</a>
+            <div class="action-links">
+                <a href="/home" class="action-btn sub-btn">トップページへ</a>
+            </div>
         </div>
+
+        <div class="profile-grid">
+
+            <div class="card">
+                <h3>基本情報</h3>
+
+                <p th:if="${message}" th:text="${message}" class="message"></p>
+
+                <form method="post" action="/profile">
+                    <label for="name">名前</label>
+                    <input id="name" name="name" type="text" th:value="${user.name}" required>
+
+                    <label for="email">メールアドレス</label>
+                    <input id="email" type="email" th:value="${user.email}" class="readonly" readonly>
+
+                    <button type="submit" class="save-btn">プロフィールを更新</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3>パスワード変更</h3>
+
+                <p th:if="${error}" th:text="${error}" class="error"></p>
+                <p th:if="${passwordMessage}" th:text="${passwordMessage}" class="message"></p>
+
+                <form method="post" action="/profile/password">
+                    <label for="oldPassword">現在のパスワード</label>
+                    <div class="password-wrapper">
+                        <input id="oldPassword" name="oldPassword" type="password" required>
+                        <button type="button" id="toggleOld" class="toggle-btn">👀</button>
+                    </div>
+
+                    <label for="newPassword">新しいパスワード</label>
+                    <div class="password-wrapper">
+                        <input id="newPassword" name="newPassword" type="password" required>
+                        <button type="button" id="toggleNew" class="toggle-btn">👀</button>
+                    </div>
+
+                    <button type="submit" class="save-btn">パスワードを変更</button>
+                </form>
+            </div>
+
+        </div>
+
     </div>
-
-    <div class="profile-grid">
-
-        <div class="card">
-            <h3>基本情報</h3>
-
-            <p th:if="${message}" th:text="${message}" class="message"></p>
-
-            <form method="post" action="/profile">
-                <label for="name">名前</label>
-                <input id="name" name="name" type="text" th:value="${user.name}" required>
-
-                <label for="email">メールアドレス</label>
-                <input id="email" type="email" th:value="${user.email}" class="readonly" readonly>
-
-                <button type="submit" class="save-btn">プロフィールを更新</button>
-            </form>
-        </div>
-
-        <div class="card">
-            <h3>パスワード変更</h3>
-
-            <p th:if="${error}" th:text="${error}" class="error"></p>
-            <p th:if="${passwordMessage}" th:text="${passwordMessage}" class="message"></p>
-
-            <form method="post" action="/profile/password">
-                <label for="oldPassword">現在のパスワード</label>
-                <input id="oldPassword" name="oldPassword" type="password" required>
-
-                <label for="newPassword">新しいパスワード</label>
-                <input id="newPassword" name="newPassword" type="password" required>
-
-                <button type="submit" class="save-btn">パスワードを変更</button>
-            </form>
-        </div>
-
-    </div>
-
-</div>
 
 </body>
 <script>
-    (function () {
-        window.addEventListener("pageshow", function (event) {
-            var nav = performance.getEntriesByType("navigation");
-            var isBackForward = nav.length > 0 && nav[0].type === "back_forward";
-            if (event.persisted || isBackForward) {
-                window.location.reload();
+    document.addEventListener("DOMContentLoaded", function () {
+        const newInput = document.getElementById("newPassword");
+        const oldInput = document.getElementById("oldPassword");
+        const toggleNew = document.getElementById("toggleNew");
+        const toggleOld = document.getElementById("toggleOld");
+
+        toggleNew.addEventListener("click", function () {
+            if (newInput.type === "password") {
+                newInput.type = "text";
+                toggleNew.textContent = "🙈";
             }
-        });
-    })();
+            else {
+                newInput.type = "password";
+                toggleNew.textContent = "👀";
+            }
+        })
+        toggleOld.addEventListener("click", function () {
+            if (oldInput.type === "password") {
+                oldInput.type = "text";
+                toggleOld.textContent = "🙈";
+            }
+            else {
+                oldInput.type = "password";
+                toggleOld.textContent = "👀";
+            }
+        })
+    })
+        (function () {
+            window.addEventListener("pageshow", function (event) {
+                var nav = performance.getEntriesByType("navigation");
+                var isBackForward = nav.length > 0 && nav[0].type === "back_forward";
+                if (event.persisted || isBackForward) {
+                    window.location.reload();
+                }
+            });
+        })();
 </script>
 
 </html>

@@ -1,4 +1,4 @@
-package com.sunlunch.sunlunch.controller;
+﻿package com.sunlunch.sunlunch.controller;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -43,7 +43,7 @@ public class AdminOrderListController {
         User loginUser = (User) session.getAttribute("loginUser");
 
         if (loginUser == null) {
-            return "redirect:/login";
+            return "redirect:/admin/login";
         }
         if (!"ADMIN".equals(loginUser.getRole())) {
             return "redirect:/home";
@@ -102,11 +102,11 @@ public class AdminOrderListController {
 
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
-            return "redirect:/login";
+            return "redirect:/admin/login";
         }
 
         if (!"ADMIN".equals(loginUser.getRole())) {
-            return "redirect:/login";
+            return "redirect:/admin/login";
         }
 
         Order order = orderRepository.findById(orderId).orElse(null);
@@ -123,3 +123,4 @@ public class AdminOrderListController {
     }
 
 }
+

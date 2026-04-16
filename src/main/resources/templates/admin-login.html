@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理者登録</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --panel: #111827;
+            --panel-border: #334155;
+            --title: #f8fafc;
+            --text: #cbd5e1;
+            --primary: #f97316;
+            --primary-hover: #ea580c;
+            --error-bg: #3f1d1d;
+            --error-text: #fecaca;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Segoe UI", "Noto Sans JP", sans-serif;
+            background:
+                radial-gradient(circle at 20% 20%, rgba(249, 115, 22, 0.25), transparent 35%),
+                radial-gradient(circle at 80% 80%, rgba(14, 165, 233, 0.15), transparent 35%),
+                var(--bg);
+            color: var(--text);
+            padding: 16px;
+        }
+
+        .panel {
+            width: 100%;
+            max-width: 420px;
+            background: linear-gradient(180deg, rgba(17,24,39,0.98), rgba(15,23,42,0.98));
+            border: 1px solid var(--panel-border);
+            border-radius: 16px;
+            padding: 30px 24px;
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+        }
+
+        .badge {
+            display: inline-block;
+            margin-bottom: 10px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(249, 115, 22, 0.5);
+            color: #fdba74;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+        }
+
+        h1 {
+            margin: 0 0 8px;
+            font-size: 24px;
+            color: var(--title);
+        }
+
+        .desc {
+            margin: 0 0 24px;
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        label {
+            display: block;
+            margin: 0 0 6px;
+            font-size: 13px;
+            color: #cbd5e1;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #475569;
+            background: rgba(15, 23, 42, 0.9);
+            color: #f8fafc;
+            margin-bottom: 14px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #fb923c;
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(90deg, var(--primary), #ef4444);
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: linear-gradient(90deg, var(--primary-hover), #dc2626);
+        }
+
+        .error {
+            margin-bottom: 14px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: var(--error-bg);
+            color: var(--error-text);
+            border: 1px solid #7f1d1d;
+            font-size: 13px;
+        }
+
+        .back-link {
+            margin-top: 16px;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .back-link a {
+            color: #93c5fd;
+            text-decoration: none;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <section class="panel">
+        <span class="badge">ADMIN CONSOLE</span>
+        <h1>管理者登録</h1>
+        <p class="desc">仅限管理员账号访问后台管理功能。</p>
+
+        <p th:if="${error}" th:text="${error}" class="error"></p>
+
+        <form method="post" action="/admin/login">
+            <label for="email">邮箱地址</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">密码</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit">登录后台</button>
+        </form>
+
+        <div class="back-link">
+            <a href="/login">返回普通用户登录</a>
+        </div>
+    </section>
+</body>
+</html>

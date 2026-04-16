@@ -1,4 +1,4 @@
-package com.sunlunch.sunlunch.controller;
+﻿package com.sunlunch.sunlunch.controller;
 
 import com.sunlunch.sunlunch.dto.MonthlyOrderSummaryDTO;
 import com.sunlunch.sunlunch.entity.Order;
@@ -30,7 +30,7 @@ public class AdminMonthlyOrderController {
                                     Model model){
         User loginUser = (User) session.getAttribute("loginUser");
         if(loginUser == null){
-            return "redirect:/login";
+            return "redirect:/admin/login";
         }
         if(!"ADMIN".equals(loginUser.getRole())){
             return "redirect:/home";
@@ -71,3 +71,4 @@ public class AdminMonthlyOrderController {
         return "admin-orders-monthly";
     }
 }
+

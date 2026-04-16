@@ -1,4 +1,4 @@
-package com.sunlunch.sunlunch.controller;
+﻿package com.sunlunch.sunlunch.controller;
 
 import com.sunlunch.sunlunch.entity.User;
 import com.sunlunch.sunlunch.repository.UserRepository;
@@ -57,7 +57,33 @@ public class AuthController {
         model.addAttribute("error", "メールアドレスまたはパスワードが正しくありません。");
         return "login";
     }
+    if ("ADMIN".equals(user.getRole())) {
+        model.addAttribute("error", "管理员账号请从管理员登录入口登录。");
+        return "login";
+    }
     session.setAttribute("loginUser",user);
+    return "redirect:/home";
+}
+@GetMapping("/admin/login")
+    public String adminLoginPage(HttpSession session){
+       User loginUser = (User) session.getAttribute("loginUser");
+       if(loginUser != null && "ADMIN".equals(loginUser.getRole())){
+           return "redirect:/admin/orders/today";
+       }
+       return "admin-login";
+}
+@PostMapping("/admin/login")
+    public String adminLoginUser(@RequestParam("email") String email,
+                                 @RequestParam("password") String password,
+                                 Model model,
+                                 HttpSession session) {
+    User user = userRepository.findByEmailAndPassword(email, password);
+    if (user == null || !"ADMIN".equals(user.getRole())) {
+        model.addAttribute("error", "管理员账号或密码不正确。");
+        return "admin-login";
+    }
+
+    session.setAttribute("loginUser", user);
     return "redirect:/home";
 }
 @GetMapping("/home")
@@ -189,7 +215,7 @@ private void applyNoCacheHeaders(HttpServletResponse response) {
         String token = java.util.UUID.randomUUID().toString().substring(0,6);
         user.setResetToken(token);
         userRepository.save(user);
-        model.addAttribute("message", "認証コード: " + token);
+        model.addAttribute("message", "隱崎ｨｼ繧ｳ繝ｼ繝・ " + token);
         return "forgot-password";
     }
     
@@ -200,3 +226,4 @@ private void applyNoCacheHeaders(HttpServletResponse response) {
 
 
 }
+

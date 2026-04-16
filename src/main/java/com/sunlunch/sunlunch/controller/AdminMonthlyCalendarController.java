@@ -1,4 +1,4 @@
-package com.sunlunch.sunlunch.controller;
+﻿package com.sunlunch.sunlunch.controller;
 
 import com.sunlunch.sunlunch.dto.CalendarDayDTO;
 import com.sunlunch.sunlunch.entity.Order;
@@ -33,7 +33,7 @@ public class AdminMonthlyCalendarController {
         User loginUser = (User) session.getAttribute("loginUser");
 
         if (loginUser == null) {
-            return "redirect:/login";
+            return "redirect:/admin/login";
         }
 
         if (!"ADMIN".equals(loginUser.getRole())) {

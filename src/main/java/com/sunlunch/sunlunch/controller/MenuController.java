@@ -84,7 +84,7 @@ public class MenuController {
     public String newMenuPage(HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
-            return "redirect:/login";
+            return "redirect:/admin/login";
         }
         if (!"ADMIN".equals(loginUser.getRole())) {
             return "redirect:/home";
@@ -102,7 +102,7 @@ public class MenuController {
                              HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
-            return "redirect:/login";
+            return "redirect:/admin/login";
         }
         if (!"ADMIN".equals(loginUser.getRole())) {
             return "redirect:/home";
@@ -127,7 +127,7 @@ public class MenuController {
                                 HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
-            return "redirect:/login";
+            return "redirect:/admin/login";
         }
         if (!"ADMIN".equals(loginUser.getRole())) {
             return "redirect:/home";
@@ -148,7 +148,7 @@ public class MenuController {
                              Model model) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
-            return "redirect:/login";
+            return "redirect:/admin/login";
         }
         if (!"ADMIN".equals(loginUser.getRole())) {
             return "redirect:/home";
@@ -179,7 +179,7 @@ public class MenuController {
                                HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
-            return "redirect:/login";
+            return "redirect:/admin/login";
         }
         if (!"ADMIN".equals(loginUser.getRole())) {
             return "redirect:/home";
@@ -216,7 +216,7 @@ public class MenuController {
                              HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
-            return "redirect:/login";
+            return "redirect:/admin/login";
         }
         if (!"ADMIN".equals(loginUser.getRole())) {
             return "redirect:/home";
@@ -269,3 +269,4 @@ public class MenuController {
         return trimmed.isEmpty() ? null : trimmed;
     }
 }
+

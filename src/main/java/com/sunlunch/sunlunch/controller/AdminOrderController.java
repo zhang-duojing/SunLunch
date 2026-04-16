@@ -1,12 +1,10 @@
 package com.sunlunch.sunlunch.controller;
 
-import com.sunlunch.sunlunch.dto.AdminOrderSummary;
-import com.sunlunch.sunlunch.entity.Menu;
-import com.sunlunch.sunlunch.entity.User;
-import com.sunlunch.sunlunch.entity.Order;
-import com.sunlunch.sunlunch.repository.OrderRepository;
-import com.sunlunch.sunlunch.repository.MenuRepository;
-import jakarta.servlet.http.HttpSession;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,8 +13,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
-import java.util.*;
+import com.sunlunch.sunlunch.dto.AdminOrderSummary;
+import com.sunlunch.sunlunch.entity.Menu;
+import com.sunlunch.sunlunch.entity.Order;
+import com.sunlunch.sunlunch.entity.User;
+import com.sunlunch.sunlunch.repository.MenuRepository;
+import com.sunlunch.sunlunch.repository.OrderRepository;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class AdminOrderController {
@@ -52,8 +56,9 @@ public class AdminOrderController {
         }
 
         order.setPaid(true);
+        order.setPaidDate(order.getOrderDate());
         orderRepository.save(order);
-
+        
         redirectAttributes.addFlashAttribute("message", "入金確認が完了しました。");
         return "redirect:/admin/orders/list";
     }

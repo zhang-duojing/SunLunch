@@ -1,24 +1,26 @@
 package com.sunlunch.sunlunch.controller;
 
-import com.sunlunch.sunlunch.dto.OrderDetailDTO;
-import com.sunlunch.sunlunch.entity.User;
-import com.sunlunch.sunlunch.entity.Order;
-import com.sunlunch.sunlunch.entity.Menu;
-import com.sunlunch.sunlunch.repository.UserRepository;
-import com.sunlunch.sunlunch.repository.OrderRepository;
-import com.sunlunch.sunlunch.repository.MenuRepository;
-import jakarta.servlet.http.HttpSession;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.sunlunch.sunlunch.dto.OrderDetailDTO;
+import com.sunlunch.sunlunch.entity.Menu;
+import com.sunlunch.sunlunch.entity.Order;
+import com.sunlunch.sunlunch.entity.User;
+import com.sunlunch.sunlunch.repository.MenuRepository;
+import com.sunlunch.sunlunch.repository.OrderRepository;
+import com.sunlunch.sunlunch.repository.UserRepository;
+
+import jakarta.servlet.http.HttpSession;
 
 
 @Controller
@@ -47,14 +49,17 @@ public class AdminOrderListController {
             return "redirect:/home";
         }
 
-        List<Order> orderList;
-        if (date != null && !date.isEmpty()) {
-            orderList = orderRepository.findByOrderDate(LocalDate.parse(date));
-            model.addAttribute("selectedDate", date);
-        } else {
-            orderList = orderRepository.findAll();
-        }
+        LocalDate selectedDate;
+        if(date!=null && !date.isEmpty()){
+            selectedDate = LocalDate.parse(date);
 
+        } else {
+            selectedDate = LocalDate.now();
+        }
+        //orderList = orderRepository.findByOrderDate(selectedDate);
+        model.addAttribute("selectedDate", selectedDate);
+
+        List<Order> orderList = orderRepository.findByOrderDate(selectedDate);
         List<OrderDetailDTO> paidOrderList = new ArrayList<>();
         List<OrderDetailDTO> unpaidOrderList = new ArrayList<>();
 
@@ -81,6 +86,7 @@ public class AdminOrderListController {
                 }
             }
         }
+        model.addAttribute("selectedDate", selectedDate);
 
         model.addAttribute("paidOrderList", paidOrderList);
         model.addAttribute("unpaidOrderList", unpaidOrderList);

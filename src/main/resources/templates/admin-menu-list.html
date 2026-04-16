@@ -70,6 +70,60 @@
             background: white;
         }
 
+        .search-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-form input[type="date"] {
+            min-width: 220px;
+            padding: 9px 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 14px;
+        }
+
+        .search-btn {
+            padding: 9px 16px;
+            border: none;
+            border-radius: 8px;
+            background: #4facfe;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .search-btn:hover {
+            background: #2f80ed;
+        }
+
+        .date-chip-area {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .date-chip {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 999px;
+            background: #ffffff;
+            color: #374151;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .date-chip:hover {
+            background: #eef6ff;
+            border-color: #93c5fd;
+        }
+
         .action-links {
             display: flex;
             flex-wrap: wrap;
@@ -109,6 +163,28 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 20px;
+        }
+
+        .section-title {
+            margin: 30px 0 14px;
+            font-size: 22px;
+            color: #2d3748;
+        }
+
+        .section-note {
+            margin: 0 0 16px;
+            color: #555;
+            font-size: 14px;
+        }
+
+        .empty-message {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 18px;
         }
 
         .menu-card {
@@ -219,7 +295,7 @@
             <h2>メニュー管理</h2>
         </div>
 
-        <p class="sub-text">メニューの確認・編集・削除ができます</p>
+        <p class="sub-text">初期表示は今週のメニューです。日付を選ぶと、その日のメニューに切り替わります。</p>
 
         <p th:if="${error}" th:text="${error}" class="error-message"></p>
 
@@ -229,7 +305,23 @@
                 <option value="dateAsc" th:selected="${sort == 'dateAsc'}">日付の古い順</option>
                 <option value="dateDesc" th:selected="${sort == 'dateDesc'}">日付の新しい順</option>
             </select>
+            <input type="hidden" name="searchDate" th:value="${searchDate}">
         </form>
+
+        <form class="search-form" method="get" action="/admin/menu/list">
+            <input type="hidden" name="sort" th:value="${sort}">
+            <input type="date" name="searchDate" th:value="${searchDate}">
+            <button class="search-btn" type="submit">日付で表示</button>
+            <a class="action-btn sub-btn" th:href="@{/admin/menu/list(sort=${sort})}">今週表示に戻す</a>
+        </form>
+
+        <div class="date-chip-area" th:if="${historyDateOptions != null and !#lists.isEmpty(historyDateOptions)}">
+            <form th:each="historyDate : ${historyDateOptions}" method="get" action="/admin/menu/list">
+                <input type="hidden" name="sort" th:value="${sort}">
+                <input type="hidden" name="searchDate" th:value="${historyDate}">
+                <button type="submit" class="date-chip" th:text="${#temporals.format(historyDate, 'M/d')}"></button>
+            </form>
+        </div>
 
         <div class="action-links">
             <a class="action-btn primary-btn" href="/admin/menu/new">新規メニューを追加</a>
@@ -238,8 +330,13 @@
         </div>
     </div>
 
-    <div class="menu-grid">
-        <div class="menu-card" th:each="menu : ${menuList}">
+    <h3 class="section-title" th:text="${displayTitle}">今週のメニュー</h3>
+    <p class="section-note" th:text="${displayNote}"></p>
+    <p class="empty-message" th:if="${#lists.isEmpty(displayMenuList)}">
+        条件に一致するメニューはありません。
+    </p>
+    <div class="menu-grid" th:if="${!#lists.isEmpty(displayMenuList)}">
+        <div class="menu-card" th:each="menu : ${displayMenuList}">
             <img class="menu-image" th:if="${menu.imagePath != null}" th:src="${menu.imagePath}" alt="menu image">
             <h3 th:text="${menu.menuName}"></h3>
 
@@ -249,11 +346,12 @@
             <p class="info-row">提供日: <span th:text="${menu.menuDate}"></span></p>
 
             <div class="card-actions">
-                <a class="edit-btn" th:href="@{/admin/menu/edit(menuId=${menu.id},sort=${sort})}">編集</a>
+                <a class="edit-btn" th:href="@{/admin/menu/edit(menuId=${menu.id},sort=${sort},searchDate=${searchDate})}">編集</a>
 
                 <form action="/admin/menu/delete" method="post">
                     <input type="hidden" name="menuId" th:value="${menu.id}">
                     <input type="hidden" name="sort" th:value="${sort}">
+                    <input type="hidden" name="searchDate" th:value="${searchDate}">
                     <button class="delete-btn" type="submit">削除</button>
                 </form>
             </div>
@@ -275,7 +373,3 @@
     })();
 </script>
 </html>
-
-
-
-

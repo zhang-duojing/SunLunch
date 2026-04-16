@@ -155,6 +155,7 @@
     <form method="post" action="/admin/menu/edit" >
         <input type="hidden" name="id" th:value="${menu.id}">
         <input type="hidden" name="sort" th:value="${sort}">
+        <input type="hidden" name="searchDate" th:value="${searchDate}">
 
         <label for="menuName">メニュー名</label>
         <input id="menuName" name="menuName" type="text" th:value="${menu.menuName}" required>
@@ -184,7 +185,7 @@
 
         <div class="btn-area">
             <button class="save-btn" type="submit">変更を保存</button>
-            <a class="back-btn" th:href="@{/admin/menu/list(sort=${sort})}">戻る</a>
+            <a class="back-btn" th:href="@{/admin/menu/list(sort=${sort},searchDate=${searchDate})}">戻る</a>
         </div>
     </form>
 </div>
@@ -202,5 +203,4 @@
     })();
 </script>
 </html>
-
 

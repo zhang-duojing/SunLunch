@@ -14,7 +14,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 @Controller
@@ -123,6 +125,7 @@ public class MenuController {
 
     @GetMapping("/admin/menu/list")
     public String adminMenuList(@RequestParam(value = "sort", defaultValue = SORT_DATE_ASC) String sort,
+                                @RequestParam(value = "searchDate", required = false) String searchDate,
                                 Model model,
                                 HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -134,9 +137,7 @@ public class MenuController {
         }
 
         String normalizedSort = normalizeSort(sort);
-        List<Menu> menuList = getAdminMenuList(normalizedSort);
-        model.addAttribute("menuList", menuList);
-        model.addAttribute("sort", normalizedSort);
+        populateAdminMenuListModel(model, normalizedSort, searchDate);
 
         return "admin-menu-list";
     }
@@ -144,6 +145,7 @@ public class MenuController {
     @PostMapping("/admin/menu/delete")
     public String deleteMenu(@RequestParam("menuId") Long menuId,
                              @RequestParam(value = "sort", defaultValue = SORT_DATE_ASC) String sort,
+                             @RequestParam(value = "searchDate", required = false) String searchDate,
                              HttpSession session,
                              Model model) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -157,24 +159,24 @@ public class MenuController {
         String normalizedSort = normalizeSort(sort);
         Menu menu = menuRepository.findById(menuId).orElse(null);
         if (menu == null) {
-            return "redirect:/admin/menu/list?sort=" + normalizedSort;
+            return buildMenuListRedirectUrl(normalizedSort, searchDate);
         }
 
         boolean hasOrders = orderRepository.existsByMenuId(menuId);
         if (hasOrders) {
             model.addAttribute("error", "このメニューはすでに注文があるため、削除できません。");
-            model.addAttribute("menuList", getAdminMenuList(normalizedSort));
-            model.addAttribute("sort", normalizedSort);
+            populateAdminMenuListModel(model, normalizedSort, searchDate);
             return "admin-menu-list";
         }
 
         menuRepository.delete(menu);
-        return "redirect:/admin/menu/list?sort=" + normalizedSort;
+        return buildMenuListRedirectUrl(normalizedSort, searchDate);
     }
 
     @GetMapping("/admin/menu/edit")
     public String editMenuPage(@RequestParam("menuId") Long menuId,
                                @RequestParam(value = "sort", defaultValue = SORT_DATE_ASC) String sort,
+                               @RequestParam(value = "searchDate", required = false) String searchDate,
                                Model model,
                                HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -190,17 +192,17 @@ public class MenuController {
         boolean hasOrders = orderRepository.existsByMenuId(menuId);
         if (hasOrders) {
             model.addAttribute("error", "このメニューはすでに注文があるため、編集できません。");
-            model.addAttribute("menuList", getAdminMenuList(normalizedSort));
-            model.addAttribute("sort", normalizedSort);
+            populateAdminMenuListModel(model, normalizedSort, searchDate);
             return "admin-menu-list";
         }
 
         Menu menu = menuRepository.findById(menuId).orElse(null);
         if (menu == null) {
-            return "redirect:/admin/menu/list?sort=" + normalizedSort;
+            return buildMenuListRedirectUrl(normalizedSort, searchDate);
         }
         model.addAttribute("menu", menu);
         model.addAttribute("sort", normalizedSort);
+        model.addAttribute("searchDate", searchDate == null ? "" : searchDate.trim());
         return "admin-menu-edit";
     }
 
@@ -211,6 +213,7 @@ public class MenuController {
                              @RequestParam("price") Integer price,
                              @RequestParam("menuDate") String menuDate,
                              @RequestParam(value = "sort", defaultValue = SORT_DATE_ASC) String sort,
+                             @RequestParam(value = "searchDate", required = false) String searchDate,
                              @RequestParam(value = "menuImageUrl", required = false) String menuImageUrl,
                              @RequestParam(value = "removeImage", required = false) String removeImage,
                              HttpSession session) {
@@ -244,7 +247,7 @@ public class MenuController {
         }
 
         menuRepository.save(menu);
-        return "redirect:/admin/menu/list?sort=" + normalizedSort;
+        return buildMenuListRedirectUrl(normalizedSort, searchDate);
     }
 
     private String normalizeSort(String sort) {
@@ -254,11 +257,84 @@ public class MenuController {
         return SORT_DATE_ASC;
     }
 
-    private List<Menu> getAdminMenuList(String sort) {
-        if (SORT_DATE_DESC.equals(sort)) {
-            return menuRepository.findAllByOrderByMenuDateDescIdDesc();
+    private void populateAdminMenuListModel(Model model, String sort, String searchDate) {
+        LocalDate today = LocalDate.now();
+        LocalDate weekStart = today.with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+        LocalDate weekEnd = today.with(TemporalAdjusters.nextOrSame(java.time.DayOfWeek.SUNDAY));
+
+        String normalizedSearchDate = searchDate == null ? "" : searchDate.trim();
+        LocalDate selectedDate = tryParseDate(normalizedSearchDate);
+        boolean searchMode = selectedDate != null;
+
+        List<Menu> displayMenuList;
+        String displayTitle;
+        String displayNote;
+
+        if (searchMode) {
+            displayMenuList = getMenuListByDate(sort, selectedDate);
+            displayTitle = "検索結果";
+            displayNote = selectedDate + " のメニューを表示しています。";
+        } else {
+            displayMenuList = getCurrentWeekMenuList(sort, weekStart, weekEnd);
+            displayTitle = "今週のメニュー";
+            displayNote = "表示期間: " + weekStart + " 〜 " + weekEnd;
         }
-        return menuRepository.findAllByOrderByMenuDateAscIdAsc();
+
+        List<LocalDate> historyDateOptions = getPastHistoryDateOptions(weekStart);
+
+        model.addAttribute("displayMenuList", displayMenuList);
+        model.addAttribute("displayTitle", displayTitle);
+        model.addAttribute("displayNote", displayNote);
+        model.addAttribute("searchDate", normalizedSearchDate);
+        model.addAttribute("searchMode", searchMode);
+        model.addAttribute("historyDateOptions", historyDateOptions);
+        model.addAttribute("weekStart", weekStart);
+        model.addAttribute("weekEnd", weekEnd);
+        model.addAttribute("sort", sort);
+    }
+
+    private List<Menu> getCurrentWeekMenuList(String sort, LocalDate weekStart, LocalDate weekEnd) {
+        if (SORT_DATE_DESC.equals(sort)) {
+            return menuRepository.findByMenuDateBetweenOrderByMenuDateDescIdDesc(weekStart, weekEnd);
+        }
+        return menuRepository.findByMenuDateBetweenOrderByMenuDateAscIdAsc(weekStart, weekEnd);
+    }
+
+    private List<Menu> getMenuListByDate(String sort, LocalDate targetDate) {
+        if (SORT_DATE_DESC.equals(sort)) {
+            return menuRepository.findByMenuDateOrderByMenuDateDescIdDesc(targetDate);
+        }
+        return menuRepository.findByMenuDateOrderByMenuDateAscIdAsc(targetDate);
+    }
+
+    private List<LocalDate> getPastHistoryDateOptions(LocalDate weekStart) {
+        List<Menu> pastMenus = menuRepository.findByMenuDateBeforeOrderByMenuDateDescIdDesc(weekStart);
+        LinkedHashSet<LocalDate> uniqueDates = new LinkedHashSet<>();
+        for (Menu menu : pastMenus) {
+            if (menu.getMenuDate() != null) {
+                uniqueDates.add(menu.getMenuDate());
+            }
+            if (uniqueDates.size() >= 14) {
+                break;
+            }
+        }
+        return new ArrayList<>(uniqueDates);
+    }
+
+    private LocalDate tryParseDate(String text) {
+        try {
+            return LocalDate.parse(text);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    private String buildMenuListRedirectUrl(String sort, String searchDate) {
+        String normalizedSearchDate = searchDate == null ? "" : searchDate.trim();
+        if (!normalizedSearchDate.isEmpty()) {
+            return "redirect:/admin/menu/list?sort=" + sort + "&searchDate=" + normalizedSearchDate;
+        }
+        return "redirect:/admin/menu/list?sort=" + sort;
     }
 
     private String normalizeImageUrl(String imageUrl) {
@@ -269,4 +345,3 @@ public class MenuController {
         return trimmed.isEmpty() ? null : trimmed;
     }
 }
-

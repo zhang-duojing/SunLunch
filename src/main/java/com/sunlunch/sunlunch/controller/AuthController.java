@@ -58,7 +58,7 @@ public class AuthController {
         return "login";
     }
     if ("ADMIN".equals(user.getRole())) {
-        model.addAttribute("error", "管理员账号请从管理员登录入口登录。");
+        model.addAttribute("error", "管理者アカウントは管理者ログイン画面からログインしてください。");
         return "login";
     }
     session.setAttribute("loginUser",user);
@@ -79,7 +79,7 @@ public class AuthController {
                                  HttpSession session) {
     User user = userRepository.findByEmailAndPassword(email, password);
     if (user == null || !"ADMIN".equals(user.getRole())) {
-        model.addAttribute("error", "管理员账号或密码不正确。");
+        model.addAttribute("error", "管理者アカウントまたはパスワードが正しくありません。");
         return "admin-login";
     }
 

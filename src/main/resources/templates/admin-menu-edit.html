@@ -174,7 +174,7 @@
         </div>
         <p th:if="${menu.imagePath == null}" style="margin: 4px 0 12px; color: #777; font-size: 14px;">画像なし</p>
 
-        <label for="menuImageUrl">画像URL（任意）</label>
+                <label for="menuImageUrl">画像リンク（任意）</label>
         <input id="menuImageUrl" name="menuImageUrl" type="url" placeholder="https://example.com/menu.jpg" th:value="${menu.imagePath}">
 
         <label class="check-row" for="removeImage">
@@ -202,6 +202,5 @@
     })();
 </script>
 </html>
-
 
 

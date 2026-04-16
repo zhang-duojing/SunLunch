@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>管理者登録</title>
+    <title>管理者ログイン</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -134,24 +134,24 @@
 </head>
 <body>
     <section class="panel">
-        <span class="badge">ADMIN CONSOLE</span>
-        <h1>管理者登録</h1>
-        <p class="desc">仅限管理员账号访问后台管理功能。</p>
+        <span class="badge">管理者専用</span>
+        <h1>管理者ログイン</h1>
+        <p class="desc">管理者アカウントのみ、管理機能にアクセスできます。</p>
 
         <p th:if="${error}" th:text="${error}" class="error"></p>
 
         <form method="post" action="/admin/login">
-            <label for="email">邮箱地址</label>
+            <label for="email">メールアドレス</label>
             <input type="email" id="email" name="email" required>
 
-            <label for="password">密码</label>
+            <label for="password">パスワード</label>
             <input type="password" id="password" name="password" required>
 
-            <button type="submit">登录后台</button>
+            <button type="submit">管理画面にログイン</button>
         </form>
 
         <div class="back-link">
-            <a href="/login">返回普通用户登录</a>
+            <a href="/login">一般ユーザーログインに戻る</a>
         </div>
     </section>
 </body>

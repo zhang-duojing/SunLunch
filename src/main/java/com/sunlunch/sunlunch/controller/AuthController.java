@@ -215,7 +215,7 @@ private void applyNoCacheHeaders(HttpServletResponse response) {
         String token = java.util.UUID.randomUUID().toString().substring(0,6);
         user.setResetToken(token);
         userRepository.save(user);
-        model.addAttribute("message", "隱崎ｨｼ繧ｳ繝ｼ繝・ " + token);
+        model.addAttribute("message", "認証コード発行" + token);
         return "forgot-password";
     }
     

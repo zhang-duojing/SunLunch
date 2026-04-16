@@ -1,18 +1,19 @@
 package com.sunlunch.sunlunch.controller;
 
-import com.sunlunch.sunlunch.entity.Order;
-import com.sunlunch.sunlunch.entity.User;
-import com.sunlunch.sunlunch.repository.OrderRepository;
-
-import jakarta.servlet.http.HttpSession;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import com.sunlunch.sunlunch.entity.Order;
+import com.sunlunch.sunlunch.entity.User;
+import com.sunlunch.sunlunch.repository.OrderRepository;
+
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class OrderController {
@@ -37,7 +38,7 @@ public class OrderController {
         }
 
         LocalDate today = LocalDate.now();
-        Order existingTodayOrder = orderRepository.findByUserIdAndOrderDate(loginUser.getId(), today);
+        List<Order> existingTodayOrder = orderRepository.findByUserIdAndOrderDate(loginUser.getId(), today);
         if (existingTodayOrder != null) {
             return "redirect:/menu?alreadyOrdered";
         }

@@ -55,6 +55,44 @@
             transition: 0.25s;
         }
 
+        .sub-text {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .search-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .search-area input[type="date"] {
+            padding: 11px 12px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .search-btn {
+            padding: 11px 18px;
+            background: #4facfe;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+        }
+
+        .search-btn:hover {
+            background: #2f80ed;
+        }
+
         .main-btn {
             background: #4facfe;
             color: white;
@@ -203,7 +241,16 @@
 
         <div class="header">
             <h2>注文履歴</h2>
-            <p class="welcome">ようこそ、<span th:text="${user.name}"></span>さん</p>
+            <p class="welcome">
+                ようこそ、<span th:text="${user.name}"></span>さん
+            </p>
+
+            <p class="sub-text" th:text="'表示日：' + ${selectedDate}"></p>
+
+            <form th:action="@{/my-orders}" method="get" class="search-area">
+                <input type="date" name="date" th:value="${selectedDate}">
+                <button type="submit" class="search-btn">検索</button>
+            </form>
 
             <div class="action-links">
                 <a href="/home" class="action-btn sub-btn">トップページ</a>
@@ -262,4 +309,5 @@
         });
     })();
 </script>
+
 </html>

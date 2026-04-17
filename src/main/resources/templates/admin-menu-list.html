@@ -102,28 +102,6 @@
             background: #2f80ed;
         }
 
-        .date-chip-area {
-            margin-top: 12px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .date-chip {
-            padding: 8px 12px;
-            border: 1px solid #d1d5db;
-            border-radius: 999px;
-            background: #ffffff;
-            color: #374151;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .date-chip:hover {
-            background: #eef6ff;
-            border-color: #93c5fd;
-        }
-
         .action-links {
             display: flex;
             flex-wrap: wrap;
@@ -314,14 +292,6 @@
             <button class="search-btn" type="submit">日付で表示</button>
             <a class="action-btn sub-btn" th:href="@{/admin/menu/list(sort=${sort})}">今週表示に戻す</a>
         </form>
-
-        <div class="date-chip-area" th:if="${historyDateOptions != null and !#lists.isEmpty(historyDateOptions)}">
-            <form th:each="historyDate : ${historyDateOptions}" method="get" action="/admin/menu/list">
-                <input type="hidden" name="sort" th:value="${sort}">
-                <input type="hidden" name="searchDate" th:value="${historyDate}">
-                <button type="submit" class="date-chip" th:text="${#temporals.format(historyDate, 'M/d')}"></button>
-            </form>
-        </div>
 
         <div class="action-links">
             <a class="action-btn primary-btn" href="/admin/menu/new">新規メニューを追加</a>

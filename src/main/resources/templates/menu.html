@@ -116,6 +116,15 @@
             font-size: 14px;
         }
 
+        .deadline-info {
+            color: #1f4f82;
+            background: #e8f0fe;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -226,7 +235,13 @@
 
         <p th:if="${message}" th:text="${message}" class="message"></p>
         <p th:if="${error}" th:text="${error}" class="error"></p>
-        <p th:if="${!orderAvailable}" class="warning">注文時間は終了しました（23:45まで）</p>
+        <p class="deadline-info">
+            本日の注文締切: <span th:text="${orderDeadlineDisplay}"></span>
+            <span id="countdownText"></span>
+        </p>
+        <p th:if="${!orderAvailable}" class="warning">
+            注文時間は終了しました（<span th:text="${orderDeadlineDisplay}"></span>まで）
+        </p>
     </div>
 
     <div class="menu-grid">
@@ -252,7 +267,7 @@
 </div>
 
 </body>
-<script>
+<script th:inline="javascript">
     (function () {
         window.addEventListener("pageshow", function (event) {
             var nav = performance.getEntriesByType("navigation");
@@ -262,8 +277,38 @@
             }
         });
     })();
+
+    (function () {
+        var deadlineIso = /*[[${deadlineDateTimeIso}]]*/ "";
+        if (!deadlineIso) {
+            return;
+        }
+
+        var deadlineDate = new Date(deadlineIso);
+        var countdownText = document.getElementById("countdownText");
+        if (!countdownText) {
+            return;
+        }
+
+        function renderCountdown() {
+            var now = new Date();
+            var diffMs = deadlineDate.getTime() - now.getTime();
+
+            if (diffMs <= 0) {
+                countdownText.textContent = "（締切済み）";
+                return;
+            }
+
+            var totalSeconds = Math.floor(diffMs / 1000);
+            var hours = Math.floor(totalSeconds / 3600);
+            var minutes = Math.floor((totalSeconds % 3600) / 60);
+            var seconds = totalSeconds % 60;
+
+            countdownText.textContent = "（あと " + hours + "時間 " + minutes + "分 " + seconds + "秒）";
+        }
+
+        renderCountdown();
+        setInterval(renderCountdown, 1000);
+    })();
 </script>
 </html>
-
-
-

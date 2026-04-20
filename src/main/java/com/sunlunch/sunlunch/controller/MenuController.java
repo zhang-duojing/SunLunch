@@ -5,6 +5,7 @@ import com.sunlunch.sunlunch.entity.Menu;
 import com.sunlunch.sunlunch.entity.User;
 import com.sunlunch.sunlunch.repository.MenuRepository;
 import com.sunlunch.sunlunch.repository.OrderRepository;
+import com.sunlunch.sunlunch.service.OrderDeadlineService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,7 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -24,13 +27,17 @@ public class MenuController {
 
     private static final String SORT_DATE_ASC = "dateAsc";
     private static final String SORT_DATE_DESC = "dateDesc";
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
 
     private final MenuRepository menuRepository;
     private final OrderRepository orderRepository;
+    private final OrderDeadlineService orderDeadlineService;
 
-    public MenuController(MenuRepository menuRepository, OrderRepository orderRepository) {
+    public MenuController(MenuRepository menuRepository, OrderRepository orderRepository,
+            OrderDeadlineService orderDeadlineService) {
         this.menuRepository = menuRepository;
         this.orderRepository = orderRepository;
+        this.orderDeadlineService = orderDeadlineService;
     }
 
     @GetMapping("/menu")
@@ -63,8 +70,11 @@ public class MenuController {
         model.addAttribute("user", loginUser);
         model.addAttribute("menuList", menuViewList);
 
+        LocalTime orderDeadline = orderDeadlineService.getOrderDeadline();
+        String orderDeadlineDisplay = orderDeadline.format(TIME_FORMATTER);
+
         if (closed != null) {
-            model.addAttribute("error", "本日の注文受付は終了しました。");
+            model.addAttribute("error", "本日の注文受付は終了しました（締切: " + orderDeadlineDisplay + "）。");
         }
         if (success != null) {
             model.addAttribute("message", "注文が完了しました。");
@@ -74,10 +84,12 @@ public class MenuController {
         }
 
         LocalTime now = LocalTime.now();
-        LocalTime deadLine = LocalTime.of(23, 45);
+        LocalTime deadLine = orderDeadline;
 
         boolean orderAvailable = now.isBefore(deadLine);
         model.addAttribute("orderAvailable", orderAvailable);
+        model.addAttribute("orderDeadlineDisplay", orderDeadlineDisplay);
+        model.addAttribute("deadlineDateTimeIso", LocalDateTime.of(LocalDate.now(), deadLine).toString());
 
         return "menu";
     }

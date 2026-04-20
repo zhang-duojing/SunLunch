@@ -12,15 +12,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.sunlunch.sunlunch.entity.Order;
 import com.sunlunch.sunlunch.entity.User;
 import com.sunlunch.sunlunch.repository.OrderRepository;
+import com.sunlunch.sunlunch.service.OrderDeadlineService;
 
 import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class OrderController {
     private final OrderRepository orderRepository;
+    private final OrderDeadlineService orderDeadlineService;
 
-    public OrderController(OrderRepository orderRepository) {
+    public OrderController(OrderRepository orderRepository, OrderDeadlineService orderDeadlineService) {
         this.orderRepository = orderRepository;
+        this.orderDeadlineService = orderDeadlineService;
     }
 
     @PostMapping("/order")
@@ -32,7 +35,7 @@ public class OrderController {
         }
 
         LocalTime now = LocalTime.now();
-        LocalTime deadLine = LocalTime.of(23, 45);
+        LocalTime deadLine = orderDeadlineService.getOrderDeadline();
         if (!now.isBefore(deadLine)) {
             return "redirect:/menu?closed";
         }

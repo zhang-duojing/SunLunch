@@ -52,7 +52,7 @@ public class AuthController {
                             @RequestParam("password") String password,
                             Model model,
                             HttpSession session) {
-    User user = userRepository.findByEmailAndPassword(email, password);
+    User user = userRepository.findByEmailAndPasswordAndDeletedFalse(email, password);
     if (user == null) {
         model.addAttribute("error", "メールアドレスまたはパスワードが正しくありません。");
         return "login";
@@ -77,7 +77,7 @@ public class AuthController {
                                  @RequestParam("password") String password,
                                  Model model,
                                  HttpSession session) {
-    User user = userRepository.findByEmailAndPassword(email, password);
+    User user = userRepository.findByEmailAndPasswordAndDeletedFalse(email, password);
     if (user == null || !"ADMIN".equals(user.getRole())) {
         model.addAttribute("error", "管理者アカウントまたはパスワードが正しくありません。");
         return "admin-login";

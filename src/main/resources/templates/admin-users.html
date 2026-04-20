@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ユーザー管理</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: linear-gradient(135deg, #dfe9f3, #ffffff);
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: #f9fafb;
+            padding: 28px;
+            border-radius: 18px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .header h2 {
+            margin: 0;
+            color: #333;
+        }
+
+        .sub-text {
+            margin-top: 10px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .message {
+            color: #2e7d32;
+            background: #e8f5e9;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .error {
+            color: #c62828;
+            background: #ffebee;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .action-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            display: inline-block;
+            padding: 11px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: 0.25s;
+            background: #f1f3f5;
+            color: #555;
+        }
+
+        .action-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .table-wrap {
+            background: #f9fafb;
+            border-radius: 18px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
+            padding: 18px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 840px;
+        }
+
+        th, td {
+            border-bottom: 1px solid #e6e6e6;
+            padding: 12px 10px;
+            text-align: left;
+            font-size: 14px;
+            color: #333;
+        }
+
+        th {
+            background: #eef2f7;
+            font-weight: bold;
+        }
+
+        .role-form {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .role-select {
+            padding: 7px 9px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 13px;
+        }
+
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .save-btn {
+            background: #4facfe;
+            color: #fff;
+        }
+
+        .save-btn:hover {
+            background: #2f80ed;
+        }
+
+        .delete-btn {
+            background: #ffe5e5;
+            color: #c62828;
+        }
+
+        .delete-btn:hover {
+            background: #ffcccc;
+        }
+
+        .myself-label {
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h2>ユーザー管理</h2>
+        <p class="sub-text">ユーザーの権限変更と削除を実行できます。</p>
+
+        <p th:if="${message}" th:text="${message}" class="message"></p>
+        <p th:if="${error}" th:text="${error}" class="error"></p>
+
+        <div class="action-links">
+            <a class="action-btn" href="/home">トップページ</a>
+            <a class="action-btn" href="/admin/menu/list">メニュー管理</a>
+            <a class="action-btn" href="/admin/order-settings">注文締切時刻設定</a>
+        </div>
+    </div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>名前</th>
+                <th>メールアドレス</th>
+                <th>現在の権限</th>
+                <th>権限変更</th>
+                <th>削除</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="u : ${userList}">
+                <td th:text="${u.id}"></td>
+                <td th:text="${u.name}"></td>
+                <td th:text="${u.email}"></td>
+                <td th:text="${u.role}"></td>
+                <td>
+                    <form class="role-form" method="post" action="/admin/users/role">
+                        <input type="hidden" name="userId" th:value="${u.id}">
+                        <select class="role-select" name="role">
+                            <option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${u.role == r}"></option>
+                        </select>
+                        <button class="btn save-btn" type="submit">更新</button>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" action="/admin/users/delete">
+                        <input type="hidden" name="userId" th:value="${u.id}">
+                        <button class="btn delete-btn" type="submit"
+                                th:disabled="${u.id == loginUserId}"
+                                onclick="return confirm('このユーザーを削除します。よろしいですか？');">
+                            削除
+                        </button>
+                        <span class="myself-label" th:if="${u.id == loginUserId}">（自分）</span>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

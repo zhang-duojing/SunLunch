@@ -39,7 +39,7 @@ public class OrderController {
 
         LocalDate today = LocalDate.now();
         List<Order> existingTodayOrder = orderRepository.findByUserIdAndOrderDate(loginUser.getId(), today);
-        if (existingTodayOrder != null) {
+        if (!existingTodayOrder.isEmpty()) {
             return "redirect:/menu?alreadyOrdered";
         }
 

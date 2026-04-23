@@ -5,6 +5,7 @@ import com.sunlunch.sunlunch.entity.Menu;
 import com.sunlunch.sunlunch.entity.User;
 import com.sunlunch.sunlunch.repository.MenuRepository;
 import com.sunlunch.sunlunch.repository.OrderRepository;
+import com.sunlunch.sunlunch.service.MenuImageStorageService;
 import com.sunlunch.sunlunch.service.OrderDeadlineService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -12,7 +13,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -32,12 +35,14 @@ public class MenuController {
     private final MenuRepository menuRepository;
     private final OrderRepository orderRepository;
     private final OrderDeadlineService orderDeadlineService;
+    private final MenuImageStorageService menuImageStorageService;
 
     public MenuController(MenuRepository menuRepository, OrderRepository orderRepository,
-            OrderDeadlineService orderDeadlineService) {
+            OrderDeadlineService orderDeadlineService, MenuImageStorageService menuImageStorageService) {
         this.menuRepository = menuRepository;
         this.orderRepository = orderRepository;
         this.orderDeadlineService = orderDeadlineService;
+        this.menuImageStorageService = menuImageStorageService;
     }
 
     @GetMapping("/menu")
@@ -112,6 +117,7 @@ public class MenuController {
                              @RequestParam("price") Integer price,
                              @RequestParam("menuDate") String menuDate,
                              @RequestParam(value = "menuImageUrl", required = false) String menuImageUrl,
+                             @RequestParam(value = "menuImageFile", required = false) MultipartFile menuImageFile,
                              Model model,
                              HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -127,11 +133,35 @@ public class MenuController {
         menu.setDescription(description);
         menu.setPrice(price);
         menu.setMenuDate(LocalDate.parse(menuDate));
-        menu.setImagePath(normalizeImageUrl(menuImageUrl));
+
+        try {
+            String imagePath = resolveImagePath(menuImageFile, menuImageUrl);
+            menu.setImagePath(imagePath);
+        } catch (IllegalArgumentException ex) {
+            if (hasUrlOnlyInput(menuImageFile, menuImageUrl)) {
+                menu.setImagePath(menuImageStorageService.getDefaultImagePath());
+                model.addAttribute("message", "画像URLの取得に失敗したため、デフォルト画像を設定しました。");
+            } else {
+                setCreateFormValues(model, menuName, description, price, menuDate, menuImageUrl);
+                model.addAttribute("error", ex.getMessage());
+                return "admin-menu-form";
+            }
+        } catch (IOException ex) {
+            if (hasUploadFile(menuImageFile)) {
+                setCreateFormValues(model, menuName, description, price, menuDate, menuImageUrl);
+                model.addAttribute("error", "画像アップロードに失敗しました。もう一度お試しください。");
+                return "admin-menu-form";
+            }
+            menu.setImagePath(menuImageStorageService.getDefaultImagePath());
+            model.addAttribute("message", "画像URLの取得に失敗したため、デフォルト画像を設定しました。");
+        }
 
         menuRepository.save(menu);
 
-        model.addAttribute("message", "メニューを作成しました。");
+        if (!model.containsAttribute("message")) {
+            model.addAttribute("message", "メニューを作成しました。");
+        }
+        clearCreateFormValues(model);
         return "admin-menu-form";
     }
 
@@ -182,6 +212,7 @@ public class MenuController {
         }
 
         menuRepository.delete(menu);
+        menuImageStorageService.deleteManagedImageIfExists(menu.getImagePath());
         return buildMenuListRedirectUrl(normalizedSort, searchDate);
     }
 
@@ -227,8 +258,10 @@ public class MenuController {
                              @RequestParam(value = "sort", defaultValue = SORT_DATE_ASC) String sort,
                              @RequestParam(value = "searchDate", required = false) String searchDate,
                              @RequestParam(value = "menuImageUrl", required = false) String menuImageUrl,
+                             @RequestParam(value = "menuImageFile", required = false) MultipartFile menuImageFile,
                              @RequestParam(value = "removeImage", required = false) String removeImage,
-                             HttpSession session) {
+                             HttpSession session,
+                             Model model) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
             return "redirect:/admin/login";
@@ -249,12 +282,46 @@ public class MenuController {
         menu.setPrice(price);
         menu.setMenuDate(LocalDate.parse(menuDate));
 
+        String existingImagePath = menu.getImagePath();
         if ("on".equals(removeImage) || "true".equalsIgnoreCase(removeImage)) {
             menu.setImagePath(null);
+            menuImageStorageService.deleteManagedImageIfExists(existingImagePath);
         } else {
-            String normalizedImageUrl = normalizeImageUrl(menuImageUrl);
-            if (normalizedImageUrl != null) {
-                menu.setImagePath(normalizedImageUrl);
+            try {
+                String newImagePath = resolveImagePath(menuImageFile, menuImageUrl);
+                if (newImagePath != null) {
+                    menu.setImagePath(newImagePath);
+                    if (!newImagePath.equals(existingImagePath)) {
+                        menuImageStorageService.deleteManagedImageIfExists(existingImagePath);
+                    }
+                }
+            } catch (IllegalArgumentException ex) {
+                if (hasUrlOnlyInput(menuImageFile, menuImageUrl)) {
+                    String fallbackImagePath = menuImageStorageService.getDefaultImagePath();
+                    menu.setImagePath(fallbackImagePath);
+                    if (!fallbackImagePath.equals(existingImagePath)) {
+                        menuImageStorageService.deleteManagedImageIfExists(existingImagePath);
+                    }
+                } else {
+                    model.addAttribute("error", ex.getMessage());
+                    model.addAttribute("menu", menu);
+                    model.addAttribute("sort", normalizedSort);
+                    model.addAttribute("searchDate", searchDate == null ? "" : searchDate.trim());
+                    return "admin-menu-edit";
+                }
+            } catch (IOException ex) {
+                if (hasUploadFile(menuImageFile)) {
+                    model.addAttribute("error", "画像アップロードに失敗しました。もう一度お試しください。");
+                    model.addAttribute("menu", menu);
+                    model.addAttribute("sort", normalizedSort);
+                    model.addAttribute("searchDate", searchDate == null ? "" : searchDate.trim());
+                    return "admin-menu-edit";
+                }
+                String fallbackImagePath = menuImageStorageService.getDefaultImagePath();
+                menu.setImagePath(fallbackImagePath);
+                if (!fallbackImagePath.equals(existingImagePath)) {
+                    menuImageStorageService.deleteManagedImageIfExists(existingImagePath);
+                }
             }
         }
 
@@ -355,5 +422,47 @@ public class MenuController {
         }
         String trimmed = imageUrl.trim();
         return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private String resolveImagePath(MultipartFile imageFile, String imageUrl) throws IOException {
+        boolean hasFile = hasUploadFile(imageFile);
+        String normalizedImageUrl = normalizeImageUrl(imageUrl);
+        boolean hasUrl = normalizedImageUrl != null;
+
+        if (hasFile && hasUrl) {
+            throw new IllegalArgumentException("画像はURLかファイルのどちらか一方のみ指定してください。");
+        }
+        if (hasFile) {
+            return menuImageStorageService.storeUploadedImage(imageFile);
+        }
+        if (hasUrl) {
+            return menuImageStorageService.downloadAndStoreImage(normalizedImageUrl);
+        }
+        return null;
+    }
+
+    private boolean hasUploadFile(MultipartFile imageFile) {
+        return imageFile != null && !imageFile.isEmpty();
+    }
+
+    private boolean hasUrlOnlyInput(MultipartFile imageFile, String imageUrl) {
+        return !hasUploadFile(imageFile) && normalizeImageUrl(imageUrl) != null;
+    }
+
+    private void setCreateFormValues(Model model, String menuName, String description, Integer price, String menuDate,
+            String menuImageUrl) {
+        model.addAttribute("menuName", menuName);
+        model.addAttribute("description", description);
+        model.addAttribute("price", price);
+        model.addAttribute("menuDate", menuDate);
+        model.addAttribute("menuImageUrl", normalizeImageUrl(menuImageUrl));
+    }
+
+    private void clearCreateFormValues(Model model) {
+        model.addAttribute("menuName", "");
+        model.addAttribute("description", "");
+        model.addAttribute("price", null);
+        model.addAttribute("menuDate", "");
+        model.addAttribute("menuImageUrl", "");
     }
 }

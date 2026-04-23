@@ -308,7 +308,7 @@
     </p>
     <div class="menu-grid" th:if="${!#lists.isEmpty(displayMenuList)}">
         <div class="menu-card" th:each="menu : ${displayMenuList}">
-            <img class="menu-image" th:if="${menu.imagePath != null}" th:src="${menu.imagePath}" alt="menu image">
+            <img class="menu-image" th:if="${menu.imagePath != null}" th:src="@{${menu.imagePath}}" alt="menu image">
             <h3 th:text="${menu.menuName}"></h3>
 
             <p class="description" th:text="${menu.description}"></p>

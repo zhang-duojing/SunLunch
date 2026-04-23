@@ -152,7 +152,7 @@
 
     <p th:if="${error}" th:text="${error}" class="error"></p>
 
-    <form method="post" action="/admin/menu/edit" >
+    <form method="post" action="/admin/menu/edit" enctype="multipart/form-data">
         <input type="hidden" name="id" th:value="${menu.id}">
         <input type="hidden" name="sort" th:value="${sort}">
         <input type="hidden" name="searchDate" th:value="${searchDate}">
@@ -171,12 +171,15 @@
 
         <label>現在の画像</label>
         <div class="current-image" th:if="${menu.imagePath != null}">
-            <img th:src="${menu.imagePath}" alt="menu image">
+            <img th:src="@{${menu.imagePath}}" alt="menu image">
         </div>
         <p th:if="${menu.imagePath == null}" style="margin: 4px 0 12px; color: #777; font-size: 14px;">画像なし</p>
 
-                <label for="menuImageUrl">画像リンク（任意）</label>
-        <input id="menuImageUrl" name="menuImageUrl" type="url" placeholder="https://example.com/menu.jpg" th:value="${menu.imagePath}">
+        <label for="menuImageUrl">画像URL（任意）</label>
+        <input id="menuImageUrl" name="menuImageUrl" type="url" placeholder="https://example.com/menu.jpg">
+
+        <label for="menuImageFile">または画像ファイル（JPG/PNG, 5MBまで）</label>
+        <input id="menuImageFile" name="menuImageFile" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
 
         <label class="check-row" for="removeImage">
             <input id="removeImage" name="removeImage" type="checkbox">
@@ -203,4 +206,3 @@
     })();
 </script>
 </html>
-

@@ -136,7 +136,7 @@
     <p th:if="${message}" th:text="${message}" class="message"></p>
     <p th:if="${error}" th:text="${error}" class="error"></p>
 
-    <form method="post" action="/admin/menu/new" >
+    <form method="post" action="/admin/menu/new" enctype="multipart/form-data">
         <label for="menuName">メニュー名</label>
         <input id="menuName" name="menuName" type="text" placeholder="メニュー名を入力" th:value="${menuName}" required>
 
@@ -149,8 +149,11 @@
         <label for="menuDate">メニュー日付</label>
         <input id="menuDate" name="menuDate" type="date" th:value="${menuDate}" required>
 
-                <label for="menuImageUrl">メニュー画像リンク（任意）</label>
-        <input id="menuImageUrl" name="menuImageUrl" type="url" placeholder="https://example.com/menu.jpg">
+        <label for="menuImageUrl">メニュー画像URL（任意）</label>
+        <input id="menuImageUrl" name="menuImageUrl" type="url" placeholder="https://example.com/menu.jpg" th:value="${menuImageUrl}">
+
+        <label for="menuImageFile">または画像ファイル（JPG/PNG, 5MBまで）</label>
+        <input id="menuImageFile" name="menuImageFile" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
 
         <button class="submit-btn" type="submit">メニューを登録</button>
     </form>
@@ -174,4 +177,3 @@
     })();
 </script>
 </html>
-

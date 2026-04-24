@@ -16,5 +16,6 @@ public interface MenuRepository extends JpaRepository<Menu,Long> {
     List<Menu> findByMenuDateBetweenOrderByMenuDateDescIdDesc(LocalDate startDate, LocalDate endDate);
     List<Menu> findByMenuDateBeforeOrderByMenuDateAscIdAsc(LocalDate date);
     List<Menu> findByMenuDateBeforeOrderByMenuDateDescIdDesc(LocalDate date);
+    void deleteByMenuDate(LocalDate menuDate);
 
 }

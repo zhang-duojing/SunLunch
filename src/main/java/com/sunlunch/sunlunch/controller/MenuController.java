@@ -6,6 +6,7 @@ import com.sunlunch.sunlunch.entity.User;
 import com.sunlunch.sunlunch.repository.MenuRepository;
 import com.sunlunch.sunlunch.repository.OrderRepository;
 import com.sunlunch.sunlunch.service.MenuImageStorageService;
+import com.sunlunch.sunlunch.service.MenuSyncService;
 import com.sunlunch.sunlunch.service.OrderDeadlineService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -36,13 +37,16 @@ public class MenuController {
     private final OrderRepository orderRepository;
     private final OrderDeadlineService orderDeadlineService;
     private final MenuImageStorageService menuImageStorageService;
+    private final MenuSyncService menuSyncService;
 
     public MenuController(MenuRepository menuRepository, OrderRepository orderRepository,
-            OrderDeadlineService orderDeadlineService, MenuImageStorageService menuImageStorageService) {
+            OrderDeadlineService orderDeadlineService, MenuImageStorageService menuImageStorageService,
+            MenuSyncService menuSyncService) {
         this.menuRepository = menuRepository;
         this.orderRepository = orderRepository;
         this.orderDeadlineService = orderDeadlineService;
         this.menuImageStorageService = menuImageStorageService;
+        this.menuSyncService = menuSyncService;
     }
 
     @GetMapping("/menu")
@@ -168,6 +172,8 @@ public class MenuController {
     @GetMapping("/admin/menu/list")
     public String adminMenuList(@RequestParam(value = "sort", defaultValue = SORT_DATE_ASC) String sort,
                                 @RequestParam(value = "searchDate", required = false) String searchDate,
+                                @RequestParam(value = "syncSuccess", required = false) String syncSuccess,
+                                @RequestParam(value = "syncError", required = false) String syncError,
                                 Model model,
                                 HttpSession session) {
         User loginUser = (User) session.getAttribute("loginUser");
@@ -180,8 +186,35 @@ public class MenuController {
 
         String normalizedSort = normalizeSort(sort);
         populateAdminMenuListModel(model, normalizedSort, searchDate);
+        if (syncSuccess != null) {
+            model.addAttribute("message", "本日のメニューを同期しました。");
+        }
+        if (syncError != null) {
+            model.addAttribute("error", "メニュー取得に失敗しました。");
+        }
 
         return "admin-menu-list";
+    }
+
+    @PostMapping("/admin/menu/sync")
+    public String syncTodayMenu(@RequestParam(value = "sort", defaultValue = SORT_DATE_ASC) String sort,
+                                @RequestParam(value = "searchDate", required = false) String searchDate,
+                                HttpSession session) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return "redirect:/admin/login";
+        }
+        if (!"ADMIN".equals(loginUser.getRole())) {
+            return "redirect:/home";
+        }
+
+        String normalizedSort = normalizeSort(sort);
+        try {
+            menuSyncService.syncTodayMenu();
+            return buildMenuListRedirectUrl(normalizedSort, searchDate) + "&syncSuccess=1";
+        } catch (Exception ex) {
+            return buildMenuListRedirectUrl(normalizedSort, searchDate) + "&syncError=1";
+        }
     }
 
     @PostMapping("/admin/menu/delete")

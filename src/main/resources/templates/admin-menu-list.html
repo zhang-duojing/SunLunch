@@ -54,6 +54,15 @@
             font-size: 14px;
         }
 
+        .success-message {
+            color: #1b5e20;
+            background: #e8f5e9;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
         .sort-form {
             display: flex;
             align-items: center;
@@ -117,6 +126,7 @@
             font-size: 14px;
             font-weight: bold;
             transition: 0.25s;
+            border: none;
         }
 
         .primary-btn {
@@ -135,6 +145,25 @@
 
         .sub-btn:hover {
             background: #e0e0e0;
+        }
+
+        .sync-btn {
+            background: #d9efe5;
+            color: #1e5f46;
+            border: 1px solid #b8dfcf;
+            outline: none;
+            box-shadow: none;
+        }
+
+        .sync-btn:hover {
+            background: #cde8dc;
+            color: #184f3a;
+        }
+
+        .sync-btn:focus,
+        .sync-btn:focus-visible {
+            outline: none;
+            box-shadow: none;
         }
 
         .menu-grid {
@@ -252,6 +281,10 @@
             margin: 0;
         }
 
+        .sync-form {
+            display: inline;
+        }
+
         @media (max-width: 768px) {
             .menu-grid {
                 grid-template-columns: 1fr;
@@ -275,6 +308,7 @@
 
         <p class="sub-text">初期表示は今週のメニューです。日付を選ぶと、その日のメニューに切り替わります。</p>
 
+        <p th:if="${message}" th:text="${message}" class="success-message"></p>
         <p th:if="${error}" th:text="${error}" class="error-message"></p>
 
         <form class="sort-form" method="get" action="/admin/menu/list">
@@ -295,6 +329,11 @@
 
         <div class="action-links">
             <a class="action-btn primary-btn" href="/admin/menu/new">新規メニューを追加</a>
+            <form class="sync-form" th:action="@{/admin/menu/sync}" method="post">
+                <input type="hidden" name="sort" th:value="${sort}">
+                <input type="hidden" name="searchDate" th:value="${searchDate}">
+                <button type="submit" class="action-btn sync-btn">便当店サイトから同期</button>
+            </form>
             <a class="action-btn sub-btn" href="/admin/order-settings">注文締切時刻設定</a>
             <a class="action-btn sub-btn" href="/menu">注文用メニュー</a>
             <a class="action-btn sub-btn" href="/home">トップページ</a>

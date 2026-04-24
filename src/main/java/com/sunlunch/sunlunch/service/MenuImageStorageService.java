@@ -104,6 +104,10 @@ public class MenuImageStorageService {
         return MENU_UPLOAD_URL_PREFIX + storedFilename;
     }
 
+    public String saveFromUrl(String imageUrl) throws IOException {
+        return downloadAndStoreImage(imageUrl);
+    }
+
     public String getDefaultImagePath() {
         return DEFAULT_MENU_IMAGE_PATH;
     }

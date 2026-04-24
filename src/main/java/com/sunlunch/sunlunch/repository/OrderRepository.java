@@ -15,6 +15,8 @@ public interface OrderRepository extends JpaRepository<Order,Long>{
     
     Order findByIdAndUserId(Long id,Long userId);
     Boolean existsByMenuId(Long menuId);
+    Boolean existsByUserId(Long userId);
+    void deleteByUserId(Long userId);
     List<Order> findByOrderDateBetween(LocalDate startDate,LocalDate endDate);
     int countByMenuId(Long menuId);
     int countByMenuIdAndPaidTrue(Long menuId);

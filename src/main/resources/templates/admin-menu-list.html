@@ -314,8 +314,8 @@
         <form class="sort-form" method="get" action="/admin/menu/list">
             <label for="sort">並び順:</label>
             <select id="sort" name="sort" onchange="this.form.submit()">
-                <option value="dateAsc" th:selected="${sort == 'dateAsc'}">日付の古い順</option>
                 <option value="dateDesc" th:selected="${sort == 'dateDesc'}">日付の新しい順</option>
+                <option value="dateAsc" th:selected="${sort == 'dateAsc'}">日付の古い順</option>
             </select>
             <input type="hidden" name="searchDate" th:value="${searchDate}">
         </form>

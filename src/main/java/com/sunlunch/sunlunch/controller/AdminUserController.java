@@ -12,18 +12,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.sunlunch.sunlunch.entity.User;
+import com.sunlunch.sunlunch.repository.OrderRepository;
 import com.sunlunch.sunlunch.repository.UserRepository;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.transaction.Transactional;
 
 @Controller
 public class AdminUserController {
     private static final List<String> ALLOWED_ROLES = Arrays.asList("USER", "ADMIN");
 
     private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
 
-    public AdminUserController(UserRepository userRepository) {
+    public AdminUserController(UserRepository userRepository, OrderRepository orderRepository) {
         this.userRepository = userRepository;
+        this.orderRepository = orderRepository;
     }
 
     @GetMapping("/admin/users")
@@ -79,6 +83,7 @@ public class AdminUserController {
     }
 
     @PostMapping("/admin/users/delete")
+    @Transactional
     public String deleteUser(@RequestParam("userId") Long userId,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
@@ -90,7 +95,7 @@ public class AdminUserController {
             return "redirect:/home";
         }
 
-        Optional<User> optionalUser = userRepository.findByIdAndDeletedFalse(userId);
+        Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "ユーザーが見つかりません。");
             return "redirect:/admin/users";
@@ -102,9 +107,13 @@ public class AdminUserController {
             return "redirect:/admin/users";
         }
 
-        targetUser.setDeleted(true);
-        userRepository.save(targetUser);
-        redirectAttributes.addFlashAttribute("message", "ユーザーを削除しました。");
+        try {
+            orderRepository.deleteByUserId(targetUser.getId());
+            userRepository.delete(targetUser);
+            redirectAttributes.addFlashAttribute("message", "ユーザーを削除しました。");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("error", "ユーザー削除に失敗しました。");
+        }
         return "redirect:/admin/users";
     }
 }

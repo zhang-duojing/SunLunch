@@ -195,13 +195,9 @@
                     </form>
                 </td>
                 <td>
-                    <form method="post" action="/admin/users/delete">
+                    <form class="delete-form" method="post" action="/admin/users/delete">
                         <input type="hidden" name="userId" th:value="${u.id}">
-                        <button class="btn delete-btn" type="submit"
-                                th:disabled="${u.id == loginUserId}"
-                                onclick="return confirm('このユーザーを削除します。よろしいですか？');">
-                            削除
-                        </button>
+                        <button class="btn delete-btn" type="submit" th:attr="data-self=${u.id == loginUserId}">削除</button>
                         <span class="myself-label" th:if="${u.id == loginUserId}">（自分）</span>
                     </form>
                 </td>
@@ -219,6 +215,26 @@
             if (event.persisted || isBackForward) {
                 window.location.reload();
             }
+        });
+    })();
+
+    (function () {
+        var deleteForms = document.querySelectorAll(".delete-form");
+        deleteForms.forEach(function (form) {
+            form.addEventListener("submit", function (event) {
+                var button = form.querySelector(".delete-btn");
+                var isSelf = button && button.getAttribute("data-self") === "true";
+
+                if (isSelf) {
+                    alert("自分自身は削除できません。");
+                    event.preventDefault();
+                    return;
+                }
+
+                if (!confirm("このユーザーを削除します。よろしいですか？")) {
+                    event.preventDefault();
+                }
+            });
         });
     })();
 </script>

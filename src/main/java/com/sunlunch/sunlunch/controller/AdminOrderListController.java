@@ -1,4 +1,4 @@
-﻿package com.sunlunch.sunlunch.controller;
+package com.sunlunch.sunlunch.controller;
 
 import java.time.LocalDate;
 import java.util.ArrayList;

@@ -1,14 +1,16 @@
-﻿package com.sunlunch.sunlunch.controller;
-
-import com.sunlunch.sunlunch.entity.User;
-import com.sunlunch.sunlunch.repository.UserRepository;
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpServletResponse;
-
+package com.sunlunch.sunlunch.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import com.sunlunch.sunlunch.entity.User;
+import com.sunlunch.sunlunch.repository.UserRepository;
+
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 
 @Controller
@@ -58,7 +60,7 @@ public class AuthController {
         return "login";
     }
     if ("ADMIN".equals(user.getRole())) {
-        model.addAttribute("error", "管理者アカウントは管理者ログイン画面からログインしてください。");
+        model.addAttribute("error", "メールアドレスまたはパスワードが正しくありません。");
         return "login";
     }
     session.setAttribute("loginUser",user);
@@ -79,7 +81,7 @@ public class AuthController {
                                  HttpSession session) {
     User user = userRepository.findByEmailAndPasswordAndDeletedFalse(email, password);
     if (user == null || !"ADMIN".equals(user.getRole())) {
-        model.addAttribute("error", "管理者アカウントまたはパスワードが正しくありません。");
+        model.addAttribute("error", "メールアドレスまたはパスワードが正しくありません。");
         return "admin-login";
     }
 

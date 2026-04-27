@@ -212,18 +212,14 @@
     </div>
   </div>
 
-  <h3 class="section-title">日別集計</h3>
+  <h3 class="section-title">本日の集計</h3>
 
-  <div class="summary-grid" th:if="${summaryList != null and !#lists.isEmpty(summaryList)}">
-    <div class="summary-card" th:each="summary : ${summaryList}">
-      <h3>日付: <span th:text="${summary.orderDate}"></span></h3>
+  <div class="summary-grid">
+    <div class="summary-card">
+      <h3>日付: <span th:text="${todayDate}"></span></h3>
       <p class="count-label">注文数</p>
-      <p class="count"><span th:text="${summary.count}"></span></p>
+      <p class="count"><span th:text="${todayCount}"></span></p>
     </div>
-  </div>
-
-  <div class="empty-message" th:if="${summaryList == null or #lists.isEmpty(summaryList)}">
-    対象月の注文データはありません。
   </div>
 
 </div>

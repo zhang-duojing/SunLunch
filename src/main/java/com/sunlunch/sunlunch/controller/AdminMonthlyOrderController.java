@@ -2,7 +2,6 @@ package com.sunlunch.sunlunch.controller;
 
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -12,7 +11,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import com.sunlunch.sunlunch.dto.MonthlyOrderSummaryDTO;
 import com.sunlunch.sunlunch.entity.Order;
 import com.sunlunch.sunlunch.entity.User;
 import com.sunlunch.sunlunch.repository.OrderRepository;
@@ -57,16 +55,11 @@ public class AdminMonthlyOrderController {
             countMap.put(date,countMap.getOrDefault(date,0)+1);
         }
 
-        List<MonthlyOrderSummaryDTO> summaryList = new ArrayList<>();
+        LocalDate today = LocalDate.now();
+        int todayCount = countMap.getOrDefault(today, 0);
 
-        for(Map.Entry<LocalDate,Integer> entry : countMap.entrySet()){
-            MonthlyOrderSummaryDTO dto = new MonthlyOrderSummaryDTO();
-            dto.setOrderDate(entry.getKey());
-            dto.setCount(entry.getValue());
-            summaryList.add(dto);
-        }
-
-        model.addAttribute("summaryList",summaryList);
+        model.addAttribute("todayDate", today);
+        model.addAttribute("todayCount", todayCount);
         model.addAttribute("monthTotalOrders",orderList.size());
 
         return "admin-orders-monthly";

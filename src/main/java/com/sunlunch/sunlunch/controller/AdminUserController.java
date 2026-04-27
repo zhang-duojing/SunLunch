@@ -14,6 +14,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.sunlunch.sunlunch.entity.User;
 import com.sunlunch.sunlunch.repository.OrderRepository;
 import com.sunlunch.sunlunch.repository.UserRepository;
+import com.sunlunch.sunlunch.service.SessionRegistry;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.transaction.Transactional;
@@ -24,10 +25,12 @@ public class AdminUserController {
 
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final SessionRegistry sessionRegistry;
 
-    public AdminUserController(UserRepository userRepository, OrderRepository orderRepository) {
+    public AdminUserController(UserRepository userRepository, OrderRepository orderRepository, SessionRegistry sessionRegistry) {
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
+        this.sessionRegistry = sessionRegistry;
     }
 
     @GetMapping("/admin/users")
@@ -72,12 +75,17 @@ public class AdminUserController {
 
         User targetUser = optionalUser.get();
         if (targetUser.getId().equals(loginUser.getId()) && !"ADMIN".equals(role)) {
-            redirectAttributes.addFlashAttribute("error", "自分の管理者権限は外せません。");
+            redirectAttributes.addFlashAttribute("error", "自分自身の権限を変更できません。");
             return "redirect:/admin/users";
         }
 
+        boolean roleChanged = !role.equals(targetUser.getRole());
         targetUser.setRole(role);
         userRepository.save(targetUser);
+        if (roleChanged) {
+            sessionRegistry.invalidate(targetUser.getId());
+        }
+
         redirectAttributes.addFlashAttribute("message", "ユーザー権限を更新しました。");
         return "redirect:/admin/users";
     }

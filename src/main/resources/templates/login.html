@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title>ログイン</title>
-
     <style>
         body {
             font-family: "Segoe UI", Arial, sans-serif;
@@ -12,7 +11,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
         }
 
@@ -46,14 +45,7 @@
             border-radius: 8px;
             box-sizing: border-box;
             font-size: 14px;
-            transition: 0.3s;
             background: white;
-        }
-
-        input:focus {
-            border-color: #4facfe;
-            outline: none;
-            box-shadow: 0 0 5px rgba(79, 172, 254, 0.4);
         }
 
         button {
@@ -66,11 +58,6 @@
             font-size: 15px;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.3s;
-        }
-
-        button:hover {
-            background: #2f80ed;
         }
 
         .message {
@@ -92,7 +79,7 @@
         }
 
         .links {
-            margin-top: 20px;
+            margin-top: 18px;
             text-align: center;
         }
 
@@ -103,131 +90,34 @@
             text-decoration: none;
             font-size: 14px;
         }
-
-        .links a:hover {
-            text-decoration: underline;
-        }
-
-        .password-wrapper {
-            position: relative;
-            width: 100%;
-            margin-bottom: 18px;
-        }
-
-        .password-wrapper input {
-            margin-bottom: 0;
-            padding-right: 42px;
-        }
-
-        .toggle-btn {
-            display: none;
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-
-            width: 24px;
-            height: 24px;
-            padding: 0;
-            margin: 0;
-
-            background: transparent;
-            border: none;
-            border-radius: 0;
-            box-shadow: none;
-            outline: none;
-            color: #666;
-
-            /* display: flex; */
-            align-items: center;
-            justify-content: center;
-
-            cursor: pointer;
-            font-size: 18px;
-            line-height: 1;
-        }
-
-        .toggle-btn:hover,
-        .toggle-btn:focus,
-        .toggle-btn:active {
-            background: transparent;
-            border: none;
-            box-shadow: none;
-            outline: none;
-            color: #666;
-        }
-
-        .toggle-btn.show {
-            display: flex;
-        }
-
-        /*ブラウザ持つパスワード表示機能閉じる*/
-        input::-ms-reveal {
-            display: none;
-        }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <h2>🍱 ランチ予約システム</h2>
+        <h2>ログイン</h2>
 
-        <p th:if="${param.success}" class="message">
-            登録が完了しました。ログインしてください。
-        </p>
+        <p th:if="${param.success}" class="message">登録が完了しました。ログインしてください。</p>
+        <p th:if="${param.passwordChanged}" class="message">パスワードを変更したため、自動ログアウトしました。再ログインしてください。</p>
         <p th:if="${message}" th:text="${message}" class="message"></p>
         <p th:if="${error}" th:text="${error}" class="error"></p>
 
         <form method="post" action="/login">
             <label for="email">メールアドレス</label>
-            <input type="email" name="email" id="email" placeholder="メールアドレスを入力してください" required>
+            <input type="email" name="email" id="email" required>
 
             <label for="password">パスワード</label>
-            <div class="password-wrapper">
-                <input type="password" name="password" id="password" placeholder="パスワードを入力してください" required>
-                <button type="button" id="togglePassword" class="toggle-btn">👀</button>
-            </div>
+            <input type="password" name="password" id="password" required>
 
             <button type="submit">ログイン</button>
         </form>
 
         <div class="links">
-            <a href="/forgot-password">パスワードを忘れた方はこちら</a>
-            <a href="/register">新規登録はこちら</a>
+            <a href="/forgot-password">パスワードを忘れた場合</a>
+            <a href="/register">新規登録</a>
+            <a th:if="${verifyEmail}" th:href="@{/verify-email(email=${verifyEmail})}">認証コード入力ページへ</a>
         </div>
     </div>
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const passwordInput = document.getElementById("password");
-            const toggleButton = document.getElementById("togglePassword");
-
-            function updateToggleButton() {
-                if (passwordInput.value.length > 0) {
-                    toggleButton.classList.add("show");
-                }
-                else {
-                    toggleButton.classList.remove("show");
-                    passwordInput.type = "password";
-                    toggleButton.textContent = "👀";
-                }
-            }
-
-            toggleButton.addEventListener("click", function () {
-                if (passwordInput.type === "password") {
-                    passwordInput.type = "text";
-                    toggleButton.textContent = "🙈";
-                }
-                else {
-                    passwordInput.type = "password";
-                    toggleButton.textContent = "👀";
-                }
-            });
-            passwordInput.addEventListener("input", updateToggleButton);
-
-            updateToggleButton();
-        });
-    </script>
-
 </body>
 
 </html>

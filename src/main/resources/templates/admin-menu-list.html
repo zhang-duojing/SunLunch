@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -322,7 +322,7 @@
 
         <form class="search-form" method="get" action="/admin/menu/list">
             <input type="hidden" name="sort" th:value="${sort}">
-            <input type="date" name="searchDate" th:value="${searchDate}">
+            <input type="date" id="searchDate" name="searchDate" th:value="${searchDate}">
             <button class="search-btn" type="submit">日付で表示</button>
             <a class="action-btn sub-btn" th:href="@{/admin/menu/list(sort=${sort})}">今週表示に戻す</a>
         </form>
@@ -373,6 +373,19 @@
 </body>
 <script>
     (function () {
+        var searchDateInput = document.getElementById("searchDate");
+        if (!searchDateInput || searchDateInput.value) {
+            return;
+        }
+
+        var now = new Date();
+        var localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+            .toISOString()
+            .slice(0, 10);
+        searchDateInput.value = localDate;
+    })();
+
+    (function () {
         window.addEventListener("pageshow", function (event) {
             var nav = performance.getEntriesByType("navigation");
             var isBackForward = nav.length > 0 && nav[0].type === "back_forward";
@@ -382,4 +395,6 @@
         });
     })();
 </script>
+<script src="/js/admin-session-check.js"></script>
 </html>
+

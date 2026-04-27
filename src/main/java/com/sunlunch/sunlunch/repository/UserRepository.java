@@ -11,7 +11,10 @@ public interface UserRepository extends JpaRepository<User,Long> {
     User findByEmailAndPassword(String email,String password);
     User findByEmailAndPasswordAndDeletedFalse(String email, String password);
     User findByEmailAndPasswordAndDeletedFalseAndEnabledTrue(String email, String password);
+    List<User> findByDeletedFalse();
     List<User> findByDeletedFalseOrderByIdAsc();
+    List<User> findByDeletedFalseAndNameContainingIgnoreCaseOrDeletedFalseAndEmailContainingIgnoreCaseOrderByIdAsc(
+            String nameKeyword, String emailKeyword);
     Optional<User> findByIdAndDeletedFalse(Long id);
     
     User findByEmailAndResetToken(String email,String resetToken);

@@ -1,4 +1,4 @@
-package com.sunlunch.sunlunch.controller;
+﻿package com.sunlunch.sunlunch.controller;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -42,14 +42,14 @@ public class AuthController {
                                @RequestParam("password") String password,
                                Model model) {
         User existingUser = userRepository.findByEmail(email);
-        if (existingUser != null) {
+        if (existingUser != null && !existingUser.isDeleted()) {
             model.addAttribute("error", "このメールアドレスは既に登録されています。");
             return "register";
         }
 
         String verificationCode = generateVerificationCode();
 
-        User user = new User();
+        User user = existingUser != null ? existingUser : new User();
         user.setEmail(email);
         user.setName(name);
         user.setPassword(password);
@@ -62,7 +62,9 @@ public class AuthController {
         try {
             mailService.sendVerificationCode(email, verificationCode);
         } catch (Exception ex) {
-            userRepository.delete(user);
+            user.setDeleted(true);
+            user.setEnabled(false);
+            userRepository.save(user);
             model.addAttribute("error", "確認メールの送信に失敗しました。時間をおいて再度お試しください。");
             return "register";
         }
@@ -260,7 +262,7 @@ public class AuthController {
         }
 
         if (user.getResetToken() == null || !user.getResetToken().equals(token)) {
-            model.addAttribute("error", "認証コードが正しくありません。");
+            model.addAttribute("error","認証コードが正しくありません。");
             return "forgot-password";
         }
 
@@ -306,3 +308,4 @@ public class AuthController {
         return String.valueOf(code);
     }
 }
+

@@ -77,11 +77,88 @@
             background: #e0e0e0;
         }
 
-        .table-wrap {
+        .search-wrap {
+            margin-top: 20px;
+            padding: 14px;
+            border-radius: 12px;
+            background: #f3f6fa;
+            border: 1px solid #e2e8f0;
+        }
+
+        .search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-input {
+            flex: 1 1 280px;
+            max-width: 420px;
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        .search-btn {
+            background: #4facfe;
+            color: #fff;
+        }
+
+        .search-btn:hover {
+            background: #2f80ed;
+        }
+
+        .clear-btn {
+            background: #edf2f7;
+            color: #4a5568;
+        }
+
+        .clear-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .section-wrap {
+            margin-top: 18px;
             background: #f9fafb;
             border-radius: 18px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.10);
             padding: 18px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .section-title {
+            margin: 0;
+            font-size: 19px;
+            color: #2d3748;
+        }
+
+        .section-count {
+            font-size: 14px;
+            color: #4a5568;
+            margin-left: 8px;
+        }
+
+        .toggle-btn {
+            background: #edf2f7;
+            color: #4a5568;
+        }
+
+        .toggle-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .table-wrap {
+            padding: 0;
             overflow-x: auto;
         }
 
@@ -149,6 +226,11 @@
             font-size: 12px;
             color: #777;
         }
+
+        .empty-message {
+            color: #718096;
+            font-size: 13px;
+        }
     </style>
 </head>
 <body>
@@ -165,45 +247,117 @@
             <a class="action-btn" href="/admin/menu/list">メニュー管理</a>
             <a class="action-btn" href="/admin/order-settings">注文締切時刻設定</a>
         </div>
+
+        <div class="search-wrap">
+            <form class="search-form" method="get" action="/admin/users">
+                <input class="search-input" type="text" name="keyword" th:value="${keyword}"
+                       placeholder="名前またはメールアドレスで検索">
+                <button class="btn search-btn" type="submit">検索</button>
+                <button class="btn clear-btn" type="button" onclick="window.location.href='/admin/users'">クリア</button>
+            </form>
+        </div>
     </div>
 
-    <div class="table-wrap">
-        <table>
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>名前</th>
-                <th>メールアドレス</th>
-                <th>現在の権限</th>
-                <th>権限変更</th>
-                <th>削除</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="u : ${userList}">
-                <td th:text="${u.id}"></td>
-                <td th:text="${u.name}"></td>
-                <td th:text="${u.email}"></td>
-                <td th:text="${u.role}"></td>
-                <td>
-                    <form class="role-form" method="post" action="/admin/users/role">
-                        <input type="hidden" name="userId" th:value="${u.id}">
-                        <select class="role-select" name="role">
-                            <option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${u.role == r}"></option>
-                        </select>
-                        <button class="btn save-btn" type="submit">更新</button>
-                    </form>
-                </td>
-                <td>
-                    <form class="delete-form" method="post" action="/admin/users/delete">
-                        <input type="hidden" name="userId" th:value="${u.id}">
-                        <button class="btn delete-btn" type="submit" th:attr="data-self=${u.id == loginUserId}">削除</button>
-                        <span class="myself-label" th:if="${u.id == loginUserId}">（自分）</span>
-                    </form>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+    <div class="section-wrap">
+        <div class="section-header">
+            <h3 class="section-title">
+                管理者ユーザー
+                <span class="section-count" th:text="|(${#lists.size(adminUsers)}人)|"></span>
+            </h3>
+            <button type="button" class="btn toggle-btn section-toggle" data-target="admin-user-section">閉じる</button>
+        </div>
+        <div id="admin-user-section" class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>名前</th>
+                    <th>メールアドレス</th>
+                    <th>現在の権限</th>
+                    <th>権限変更</th>
+                    <th>削除</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(adminUsers)}">
+                    <td colspan="6" class="empty-message">該当する管理者ユーザーはいません。</td>
+                </tr>
+                <tr th:each="u : ${adminUsers}">
+                    <td th:text="${u.id}"></td>
+                    <td th:text="${u.name}"></td>
+                    <td th:text="${u.email}"></td>
+                    <td th:text="${u.role}"></td>
+                    <td>
+                        <form class="role-form" method="post" action="/admin/users/role">
+                            <input type="hidden" name="userId" th:value="${u.id}">
+                            <select class="role-select" name="role">
+                                <option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${u.role == r}"></option>
+                            </select>
+                            <button class="btn save-btn" type="submit">更新</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form class="delete-form" method="post" action="/admin/users/delete">
+                            <input type="hidden" name="userId" th:value="${u.id}">
+                            <button class="btn delete-btn" type="submit" th:attr="data-self=${u.id == loginUserId}">削除</button>
+                            <span class="myself-label" th:if="${u.id == loginUserId}">（自分）</span>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="section-wrap">
+        <div class="section-header">
+            <h3 class="section-title">
+                一般ユーザー
+                <span class="section-count" th:text="|(${#lists.size(normalUsers)}人)|"></span>
+            </h3>
+            <button type="button" class="btn toggle-btn section-toggle" data-target="normal-user-section">開く</button>
+        </div>
+        <div id="normal-user-section" class="table-wrap" style="display:none;">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>名前</th>
+                    <th>メールアドレス</th>
+                    <th>現在の権限</th>
+                    <th>権限変更</th>
+                    <th>削除</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(normalUsers)}">
+                    <td colspan="6" class="empty-message">該当する一般ユーザーはいません。</td>
+                </tr>
+                <tr th:each="u : ${normalUsers}">
+                    <td th:text="${u.id}"></td>
+                    <td th:text="${u.name}"></td>
+                    <td th:text="${u.email}"></td>
+                    <td th:text="${u.role}"></td>
+                    <td>
+                        <form class="role-form" method="post" action="/admin/users/role">
+                            <input type="hidden" name="userId" th:value="${u.id}">
+                            <select class="role-select" name="role">
+                                <option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${u.role == r}"></option>
+                            </select>
+                            <button class="btn save-btn" type="submit">更新</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form class="delete-form" method="post" action="/admin/users/delete">
+                            <input type="hidden" name="userId" th:value="${u.id}">
+                            <button class="btn delete-btn" type="submit" th:attr="data-self=${u.id == loginUserId}">削除</button>
+                            <span class="myself-label" th:if="${u.id == loginUserId}">（自分）</span>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -217,6 +371,23 @@
             if (event.persisted || isBackForward) {
                 window.location.reload();
             }
+        });
+    })();
+
+    (function () {
+        var toggleButtons = document.querySelectorAll(".section-toggle");
+        toggleButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                var targetId = button.getAttribute("data-target");
+                var section = document.getElementById(targetId);
+                if (!section) {
+                    return;
+                }
+
+                var isHidden = section.style.display === "none";
+                section.style.display = isHidden ? "block" : "none";
+                button.textContent = isHidden ? "閉じる" : "開く";
+            });
         });
     })();
 
@@ -241,4 +412,3 @@
     })();
 </script>
 </html>
-

@@ -278,7 +278,7 @@
                     <h3>ユーザー名: <span th:text="${order.userName}"></span></h3>
                     <p class="info-row">メニュー: <span th:text="${order.menuName}"></span></p>
                     <p class="info-row">注文日: <span th:text="${order.orderDate}"></span></p>
-                    <span class="status unpaid-status">未支払い</span>
+                    <span class="status unpaid-status">未払い</span>
                     <form action="/admin/orders/pay" method="post" style="margin-top:10px;">
                         <input type="hidden" name="orderId" th:value="${order.orderId}">
                         <button type="submit" class="pay-btn">入金確認</button>

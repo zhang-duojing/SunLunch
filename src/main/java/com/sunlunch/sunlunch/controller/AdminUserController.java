@@ -1,11 +1,13 @@
-package com.sunlunch.sunlunch.controller;
+﻿package com.sunlunch.sunlunch.controller;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,7 +36,9 @@ public class AdminUserController {
     }
 
     @GetMapping("/admin/users")
-    public String userManagementPage(HttpSession session, Model model) {
+    public String userManagementPage(@RequestParam(value = "keyword", required = false) String keyword,
+            HttpSession session,
+            Model model) {
         User loginUser = (User) session.getAttribute("loginUser");
         if (loginUser == null) {
             return "redirect:/admin/login";
@@ -43,7 +47,26 @@ public class AdminUserController {
             return "redirect:/home";
         }
 
-        model.addAttribute("userList", userRepository.findByDeletedFalseOrderByIdAsc());
+        String normalizedKeyword = keyword == null ? "" : keyword.trim();
+        List<User> users;
+        if (StringUtils.hasText(normalizedKeyword)) {
+            users = userRepository
+                    .findByDeletedFalseAndNameContainingIgnoreCaseOrDeletedFalseAndEmailContainingIgnoreCaseOrderByIdAsc(
+                            normalizedKeyword, normalizedKeyword);
+        } else {
+            users = userRepository.findByDeletedFalseOrderByIdAsc();
+        }
+
+        List<User> adminUsers = users.stream()
+                .filter(u -> "ADMIN".equals(u.getRole()))
+                .collect(Collectors.toList());
+        List<User> normalUsers = users.stream()
+                .filter(u -> "USER".equals(u.getRole()))
+                .collect(Collectors.toList());
+
+        model.addAttribute("keyword", normalizedKeyword);
+        model.addAttribute("adminUsers", adminUsers);
+        model.addAttribute("normalUsers", normalUsers);
         model.addAttribute("loginUserId", loginUser.getId());
         model.addAttribute("roles", ALLOWED_ROLES);
         return "admin-users";
@@ -103,7 +126,7 @@ public class AdminUserController {
             return "redirect:/home";
         }
 
-        Optional<User> optionalUser = userRepository.findById(userId);
+        Optional<User> optionalUser = userRepository.findByIdAndDeletedFalse(userId);
         if (optionalUser.isEmpty()) {
             redirectAttributes.addFlashAttribute("error", "ユーザーが見つかりません。");
             return "redirect:/admin/users";
@@ -117,7 +140,8 @@ public class AdminUserController {
 
         try {
             orderRepository.deleteByUserId(targetUser.getId());
-            userRepository.delete(targetUser);
+            targetUser.setDeleted(true);
+            userRepository.save(targetUser);
             redirectAttributes.addFlashAttribute("message", "ユーザーを削除しました。");
         } catch (Exception ex) {
             redirectAttributes.addFlashAttribute("error", "ユーザー削除に失敗しました。");
@@ -125,3 +149,4 @@ public class AdminUserController {
         return "redirect:/admin/users";
     }
 }
+

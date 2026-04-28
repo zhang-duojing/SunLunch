@@ -1,4 +1,4 @@
-﻿package com.sunlunch.sunlunch.controller;
+package com.sunlunch.sunlunch.controller;
 
 import java.util.Arrays;
 import java.util.List;

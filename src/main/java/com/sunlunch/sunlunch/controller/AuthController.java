@@ -1,4 +1,4 @@
-﻿package com.sunlunch.sunlunch.controller;
+package com.sunlunch.sunlunch.controller;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;

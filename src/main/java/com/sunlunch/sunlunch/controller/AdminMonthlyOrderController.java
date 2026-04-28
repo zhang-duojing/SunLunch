@@ -52,7 +52,8 @@ public class AdminMonthlyOrderController {
 
         for(Order order : orderList){
             LocalDate date = order.getOrderDate();
-            countMap.put(date,countMap.getOrDefault(date,0)+1);
+            int quantity = order.getQuantity() == null ? 1 : order.getQuantity();
+            countMap.put(date,countMap.getOrDefault(date,0)+quantity);
         }
 
         LocalDate today = LocalDate.now();
@@ -60,7 +61,10 @@ public class AdminMonthlyOrderController {
 
         model.addAttribute("todayDate", today);
         model.addAttribute("todayCount", todayCount);
-        model.addAttribute("monthTotalOrders",orderList.size());
+        int monthTotalOrders = orderList.stream()
+                .mapToInt(order -> order.getQuantity() == null ? 1 : order.getQuantity())
+                .sum();
+        model.addAttribute("monthTotalOrders", monthTotalOrders);
 
         return "admin-orders-monthly";
     }

@@ -8,4 +8,7 @@ public class OrderView {
     private Integer price;
     private LocalDate orderDate;
     private Boolean paid;
+    private Integer quantity;
+    private Boolean editable;
+    private String nonEditableMessage;
 }

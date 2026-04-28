@@ -188,7 +188,7 @@
 
     <div class="summary-top">
       <div class="summary-box">
-        <div class="summary-label">全注文数</div>
+        <div class="summary-label">全注文数量</div>
         <div class="summary-value total-value" th:text="${totalOrders}"></div>
       </div>
 
@@ -209,7 +209,7 @@
   <div class="summary-grid" th:if="${summaryList != null and !#lists.isEmpty(summaryList)}">
     <div class="summary-card" th:each="summary : ${summaryList}">
       <h3 th:text="${summary.menuName}"></h3>
-      <p class="count-label">注文数</p>
+      <p class="count-label">注文数量</p>
       <p class="count"><span th:text="${summary.count}"></span></p>
     </div>
   </div>

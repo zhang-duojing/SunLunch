@@ -17,4 +17,6 @@ public class Order {
     private LocalDate orderDate;
     private Boolean paid = false;
     private LocalDate paidDate;
+    @Column(nullable = false)
+    private Integer quantity = 1;
 }

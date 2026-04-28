@@ -120,6 +120,24 @@
             background: #ffcccc;
         }
 
+        .message {
+            color: #2e7d32;
+            background: #e8f5e9;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .error {
+            color: #c62828;
+            background: #ffebee;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
         .order-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -179,7 +197,7 @@
             margin-top: 18px;
         }
 
-        .pay-btn,
+        .update-btn,
         .cancel-btn {
             padding: 10px 18px;
             border: none;
@@ -190,12 +208,12 @@
             transition: 0.25s;
         }
 
-        .pay-btn {
+        .update-btn {
             background: #4facfe;
             color: white;
         }
 
-        .pay-btn:hover {
+        .update-btn:hover {
             background: #2f80ed;
         }
 
@@ -210,6 +228,20 @@
 
         form {
             margin: 0;
+        }
+
+        .quantity-input {
+            width: 72px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .disabled-message {
+            margin-top: 12px;
+            color: #777;
+            font-size: 14px;
         }
 
         .empty-message {
@@ -245,7 +277,7 @@
                 ようこそ、<span th:text="${user.name}"></span>さん
             </p>
 
-            <p class="sub-text" th:text="'表示日：' + ${selectedDate}"></p>
+            <p class="sub-text" th:text="'表示日: ' + ${selectedDate}"></p>
 
             <form th:action="@{/my-orders}" method="get" class="search-area">
                 <input type="date" name="date" th:value="${selectedDate}">
@@ -257,6 +289,9 @@
                 <a href="/menu" class="action-btn main-btn">メニューを見る</a>
                 <a href="/logout" class="action-btn logout-btn">ログアウト</a>
             </div>
+
+            <p th:if="${message}" th:text="${message}" class="message"></p>
+            <p th:if="${error}" th:text="${error}" class="error"></p>
         </div>
 
         <div class="order-grid" th:if="${orderViewList != null and !#lists.isEmpty(orderViewList)}">
@@ -265,29 +300,28 @@
 
                 <p class="price">¥<span th:text="${order.price}"></span></p>
                 <p class="info-row">注文日: <span th:text="${order.orderDate}"></span></p>
+                <p class="info-row">数量: <span th:text="${order.quantity}"></span>個</p>
 
                 <p class="info-row">
-                    支払い状況:
-                    <span th:if="${order.paid == true}" class="status paid-status">お支払い済み</span>
+                    支払い状態:
+                    <span th:if="${order.paid == true}" class="status paid-status">支払い済み</span>
                     <span th:if="${order.paid != true}" class="status unpaid-status">未払い</span>
                 </p>
 
-                <div class="btn-area">
-                    <!-- <form th:if="${order.paid != true}" action="/order/pay" method="post">
-          <input type="hidden" name="orderId" th:value="${order.orderId}">
-          <button type="submit" class="pay-btn">支払い</button>
-        </form> -->
-
-                    <form th:if="${order.paid != true}" action="/order/cancel" method="post">
+                <div class="btn-area" th:if="${order.editable == true}">
+                    <form action="/order/quantity" method="post">
                         <input type="hidden" name="orderId" th:value="${order.orderId}">
-                        <button type="submit" class="cancel-btn">キャンセル
-                            <p th:if="${order.paid == true}" class="info-row" style="color:#999;">
-                                支払い済みのためキャンセルできません。
-                            </p>
-                        </button>
+                        <input class="quantity-input" type="number" name="quantity" min="1" max="5" th:value="${order.quantity}">
+                        <button type="submit" class="update-btn">数量変更</button>
                     </form>
 
+                    <form action="/order/cancel" method="post">
+                        <input type="hidden" name="orderId" th:value="${order.orderId}">
+                        <button type="submit" class="cancel-btn">キャンセル</button>
+                    </form>
                 </div>
+
+                <p th:if="${order.editable != true}" class="disabled-message" th:text="${order.nonEditableMessage}"></p>
             </div>
         </div>
 

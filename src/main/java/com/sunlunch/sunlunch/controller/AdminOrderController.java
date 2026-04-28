@@ -82,12 +82,13 @@ public class AdminOrderController {
 
         for (Order order : todayOrders) {
             Long menuId = order.getMenuId();
-            countMap.put(menuId, countMap.getOrDefault(menuId, 0) + 1);
+            int quantity = order.getQuantity() == null ? 1 : order.getQuantity();
+            countMap.put(menuId, countMap.getOrDefault(menuId, 0) + quantity);
 
             if (Boolean.TRUE.equals(order.getPaid())) {
-                paidCount++;
+                paidCount += quantity;
             } else {
-                unpaidCount++;
+                unpaidCount += quantity;
             }
         }
 
@@ -106,7 +107,10 @@ public class AdminOrderController {
             }
         }
         model.addAttribute("summaryList", summaryList);
-        model.addAttribute("totalOrders", todayOrders.size());
+        int totalOrders = todayOrders.stream()
+                .mapToInt(order -> order.getQuantity() == null ? 1 : order.getQuantity())
+                .sum();
+        model.addAttribute("totalOrders", totalOrders);
         model.addAttribute("paidCount", paidCount);
         model.addAttribute("unpaidCount", unpaidCount);
 

@@ -75,7 +75,7 @@ public class AdminMonthlyCalendarController {
             int count = 0;
             for (Order order : monthlyOrders) {
                 if (current.equals(order.getOrderDate())) {
-                    count++;
+                    count += order.getQuantity() == null ? 1 : order.getQuantity();
                 }
             }
 

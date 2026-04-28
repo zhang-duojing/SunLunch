@@ -73,8 +73,8 @@ public class MenuController {
             dto.setMenuDate(menu.getMenuDate());
             dto.setImagePath(menu.getImagePath());
 
-            dto.setReservedCount(orderRepository.countByMenuId(menu.getId()));
-            dto.setPaidCount(orderRepository.countByMenuIdAndPaidTrue(menu.getId()));
+            dto.setReservedCount(orderRepository.sumQuantityByMenuId(menu.getId()));
+            dto.setPaidCount(orderRepository.sumQuantityByMenuIdAndPaidTrue(menu.getId()));
 
             menuViewList.add(dto);
         }
@@ -91,7 +91,7 @@ public class MenuController {
             model.addAttribute("message", "注文が完了しました。");
         }
         if (alreadyOrdered != null) {
-            model.addAttribute("error", "本日はすでに注文済みです。");
+            model.addAttribute("error", "本日はすでに注文済みです。数量を変更する場合は注文履歴から変更してください。");
         }
 
         LocalTime now = LocalTime.now();

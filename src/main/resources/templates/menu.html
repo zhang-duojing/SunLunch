@@ -181,6 +181,23 @@
             margin-top: 18px;
         }
 
+        .quantity-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #444;
+        }
+
+        .quantity-input {
+            width: 72px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
         .order-btn {
             width: 100%;
             padding: 12px;
@@ -240,7 +257,7 @@
             <span id="countdownText"></span>
         </p>
         <p th:if="${!orderAvailable}" class="warning">
-            注文時間は終了しました（<span th:text="${orderDeadlineDisplay}"></span>まで）
+            注文時間を過ぎました。（締切 <span th:text="${orderDeadlineDisplay}"></span>）
         </p>
     </div>
 
@@ -249,14 +266,18 @@
             <img class="menu-image" th:if="${menu.imagePath != null}" th:src="@{${menu.imagePath}}" alt="menu image">
             <h3 th:text="${menu.menuName}"></h3>
             <p class="description" th:text="${menu.description}"></p>
-            <p class="price">￥<span th:text="${menu.price}"></span></p>
+            <p class="price">¥<span th:text="${menu.price}"></span></p>
 
             <p class="info-row">メニュー日付: <span th:text="${menu.menuDate}"></span></p>
-            <p class="info-row">予約数: <span th:text="${menu.reservedCount}"></span></p>
-            <p class="info-row">支払済み: <span th:text="${menu.paidCount}"></span></p>
+            <p class="info-row">注文数量: <span th:text="${menu.reservedCount}"></span></p>
+            <p class="info-row">支払い済み数量: <span th:text="${menu.paidCount}"></span></p>
 
             <form class="order-form" action="/order" method="post">
                 <input type="hidden" name="menuId" th:value="${menu.id}">
+                <div class="quantity-area">
+                    <label>数量</label>
+                    <input class="quantity-input" type="number" name="quantity" min="1" max="5" value="1">
+                </div>
                 <button class="order-btn" type="submit" th:disabled="${!orderAvailable}">
                     注文する
                 </button>
@@ -295,7 +316,7 @@
             var diffMs = deadlineDate.getTime() - now.getTime();
 
             if (diffMs <= 0) {
-                countdownText.textContent = "（締切済み）";
+                countdownText.textContent = "（受付終了）";
                 return;
             }
 

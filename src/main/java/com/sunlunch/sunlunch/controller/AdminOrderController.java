@@ -33,32 +33,28 @@ public class AdminOrderController {
     }
 
     @PostMapping("/admin/orders/pay")
-    public String payOrder(@RequestParam("orderId") Long orderId,
+    public String confirmPayment(@RequestParam("orderId") Long orderId,
             HttpSession session,
             RedirectAttributes redirectAttributes) {
-        // User loginUser = (User) session.getAttribute("loginUser");
 
         User loginUser = (User) session.getAttribute("loginUser");
-
         if (loginUser == null) {
             return "redirect:/admin/login";
         }
-
         if (!"ADMIN".equals(loginUser.getRole())) {
             return "redirect:/admin/login";
         }
 
         Order order = orderRepository.findById(orderId).orElse(null);
-
         if (order == null) {
             redirectAttributes.addFlashAttribute("error", "注文が見つかりません。");
             return "redirect:/admin/orders/list";
         }
 
         order.setPaid(true);
-        order.setPaidDate(order.getOrderDate());
+        order.setPaidDate(LocalDate.now());
         orderRepository.save(order);
-        
+
         redirectAttributes.addFlashAttribute("message", "入金確認が完了しました。");
         return "redirect:/admin/orders/list";
     }
@@ -81,11 +77,10 @@ public class AdminOrderController {
         int unpaidCount = 0;
 
         for (Order order : todayOrders) {
-            Long menuId = order.getMenuId();
             int quantity = order.getQuantity() == null ? 1 : order.getQuantity();
-            countMap.put(menuId, countMap.getOrDefault(menuId, 0) + quantity);
-
             if (Boolean.TRUE.equals(order.getPaid())) {
+                Long menuId = order.getMenuId();
+                countMap.put(menuId, countMap.getOrDefault(menuId, 0) + quantity);
                 paidCount += quantity;
             } else {
                 unpaidCount += quantity;
@@ -98,7 +93,6 @@ public class AdminOrderController {
             Integer count = entry.getValue();
 
             Menu menu = menuRepository.findById(menuId).orElse(null);
-
             if (menu != null) {
                 AdminOrderSummary summary = new AdminOrderSummary();
                 summary.setMenuName(menu.getMenuName());
@@ -106,10 +100,13 @@ public class AdminOrderController {
                 summaryList.add(summary);
             }
         }
-        model.addAttribute("summaryList", summaryList);
+
         int totalOrders = todayOrders.stream()
+                .filter(order -> Boolean.TRUE.equals(order.getPaid()))
                 .mapToInt(order -> order.getQuantity() == null ? 1 : order.getQuantity())
                 .sum();
+
+        model.addAttribute("summaryList", summaryList);
         model.addAttribute("totalOrders", totalOrders);
         model.addAttribute("paidCount", paidCount);
         model.addAttribute("unpaidCount", unpaidCount);
@@ -117,4 +114,3 @@ public class AdminOrderController {
         return "admin-orders-today";
     }
 }
-

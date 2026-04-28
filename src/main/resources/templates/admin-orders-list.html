@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 
 <head>
@@ -35,6 +35,24 @@
         .sub-text {
             margin-top: 10px;
             color: #666;
+            font-size: 14px;
+        }
+
+        .message {
+            color: #2e7d32;
+            background: #e8f5e9;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+        }
+
+        .error {
+            color: #c62828;
+            background: #ffebee;
+            padding: 10px 12px;
+            border-radius: 8px;
+            margin-top: 16px;
             font-size: 14px;
         }
 
@@ -168,13 +186,27 @@
             color: #c62828;
         }
 
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+            align-items: center;
+        }
 
-        .pay-btn {
+        .quantity-input {
+            width: 70px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .update-btn,
+        .pay-btn,
+        .delete-btn {
             display: inline-block;
-            margin-top: 14px;
-            padding: 11px 18px;
-            background: #4facfe;
-            color: white;
+            padding: 10px 16px;
             border: none;
             border-radius: 10px;
             font-size: 14px;
@@ -183,28 +215,32 @@
             transition: 0.25s;
         }
 
-        .pay-btn:hover {
+        .update-btn {
+            background: #4facfe;
+            color: white;
+        }
+
+        .update-btn:hover {
             background: #2f80ed;
         }
 
-        .cancel-btn {
-            display: inline-block;
-            margin-top: 14px;
-            padding: 10px 18px;
+        .pay-btn {
+            background: #43a047;
+            color: white;
+        }
+
+        .pay-btn:hover {
+            background: #2e7d32;
+        }
+
+        .delete-btn {
             background: #ffe5e5;
             color: #c62828;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.25s;
         }
 
-        .cancel-btn:hover {
+        .delete-btn:hover {
             background: #ffcccc;
         }
-
 
         .empty-message {
             background: #f9fafb;
@@ -247,6 +283,9 @@
                 <a href="/admin/menu/list" class="action-btn sub-btn">メニュー管理</a>
                 <a href="/home" class="action-btn sub-btn">トップページ</a>
             </div>
+
+            <p th:if="${message}" th:text="${message}" class="message"></p>
+            <p th:if="${error}" th:text="${error}" class="error"></p>
         </div>
 
         <div class="section">
@@ -256,12 +295,21 @@
                 <div class="order-card" th:each="order : ${paidOrderList}">
                     <h3>ユーザー名: <span th:text="${order.userName}"></span></h3>
                     <p class="info-row">メニュー: <span th:text="${order.menuName}"></span></p>
+                    <p class="info-row">数量: <span th:text="${order.quantity}"></span>個</p>
                     <p class="info-row">注文日: <span th:text="${order.orderDate}"></span></p>
                     <span class="status paid-status">支払い済み</span>
-                    <form action="/admin/order/cancel" method="post">
-                        <input type="hidden" name="orderId" th:value="${order.orderId}">
-                        <button type="submit" class="cancel-btn">キャンセル</button>
-                    </form>
+
+                    <div class="action-row">
+                        <form action="/admin/order/quantity" method="post">
+                            <input type="hidden" name="orderId" th:value="${order.orderId}">
+                            <input type="number" class="quantity-input" name="quantity" min="1" max="5" th:value="${order.quantity}">
+                            <button type="submit" class="update-btn">数量変更</button>
+                        </form>
+                        <form action="/admin/order/delete" method="post">
+                            <input type="hidden" name="orderId" th:value="${order.orderId}">
+                            <button type="submit" class="delete-btn">削除</button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -277,13 +325,25 @@
                 <div class="order-card" th:each="order : ${unpaidOrderList}">
                     <h3>ユーザー名: <span th:text="${order.userName}"></span></h3>
                     <p class="info-row">メニュー: <span th:text="${order.menuName}"></span></p>
+                    <p class="info-row">数量: <span th:text="${order.quantity}"></span>個</p>
                     <p class="info-row">注文日: <span th:text="${order.orderDate}"></span></p>
                     <span class="status unpaid-status">未払い</span>
-                    <form action="/admin/orders/pay" method="post" style="margin-top:10px;">
-                        <input type="hidden" name="orderId" th:value="${order.orderId}">
-                        <button type="submit" class="pay-btn">入金確認</button>
-                    </form>
 
+                    <div class="action-row">
+                        <form action="/admin/order/quantity" method="post">
+                            <input type="hidden" name="orderId" th:value="${order.orderId}">
+                            <input type="number" class="quantity-input" name="quantity" min="1" max="5" th:value="${order.quantity}">
+                            <button type="submit" class="update-btn">数量変更</button>
+                        </form>
+                        <form action="/admin/orders/pay" method="post">
+                            <input type="hidden" name="orderId" th:value="${order.orderId}">
+                            <button type="submit" class="pay-btn">入金確認</button>
+                        </form>
+                        <form action="/admin/order/delete" method="post">
+                            <input type="hidden" name="orderId" th:value="${order.orderId}">
+                            <button type="submit" class="delete-btn">削除</button>
+                        </form>
+                    </div>
                 </div>
             </div>
 
@@ -308,4 +368,3 @@
 </script>
 <script src="/js/admin-session-check.js"></script>
 </html>
-

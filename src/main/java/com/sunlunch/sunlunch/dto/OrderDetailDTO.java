@@ -10,5 +10,6 @@ public class OrderDetailDTO {
     private String userName;
     private String menuName;
     private LocalDate orderDate;
+    private Integer quantity;
     private Boolean paid;
 }

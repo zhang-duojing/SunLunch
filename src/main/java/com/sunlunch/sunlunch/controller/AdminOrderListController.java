@@ -22,7 +22,6 @@ import com.sunlunch.sunlunch.repository.UserRepository;
 
 import jakarta.servlet.http.HttpSession;
 
-
 @Controller
 public class AdminOrderListController {
     private final OrderRepository orderRepository;
@@ -50,13 +49,11 @@ public class AdminOrderListController {
         }
 
         LocalDate selectedDate;
-        if(date!=null && !date.isEmpty()){
+        if (date != null && !date.isEmpty()) {
             selectedDate = LocalDate.parse(date);
-
         } else {
             selectedDate = LocalDate.now();
         }
-        //orderList = orderRepository.findByOrderDate(selectedDate);
         model.addAttribute("selectedDate", selectedDate);
 
         List<Order> orderList = orderRepository.findByOrderDate(selectedDate);
@@ -73,10 +70,10 @@ public class AdminOrderListController {
 
                 OrderDetailDTO dto = new OrderDetailDTO();
                 dto.setOrderId(order.getId());
-
                 dto.setUserName(user.getName());
                 dto.setMenuName(menu.getMenuName());
                 dto.setOrderDate(order.getOrderDate());
+                dto.setQuantity(order.getQuantity() == null ? 1 : order.getQuantity());
                 dto.setPaid(order.getPaid());
 
                 if (Boolean.TRUE.equals(order.getPaid())) {
@@ -86,7 +83,6 @@ public class AdminOrderListController {
                 }
             }
         }
-        model.addAttribute("selectedDate", selectedDate);
 
         model.addAttribute("paidOrderList", paidOrderList);
         model.addAttribute("unpaidOrderList", unpaidOrderList);
@@ -94,10 +90,39 @@ public class AdminOrderListController {
         return "admin-orders-list";
     }
 
-    @PostMapping("/admin/order/cancel")
-    public String orderCancel(@RequestParam("orderId") Long orderId,
+    @PostMapping("/admin/order/quantity")
+    public String adminUpdateOrderQuantity(@RequestParam("orderId") Long orderId,
+            @RequestParam("quantity") Integer quantity,
             HttpSession session,
-            Model model,
+            RedirectAttributes redirectAttributes) {
+        User loginUser = (User) session.getAttribute("loginUser");
+        if (loginUser == null) {
+            return "redirect:/admin/login";
+        }
+        if (!"ADMIN".equals(loginUser.getRole())) {
+            return "redirect:/admin/login";
+        }
+
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null) {
+            redirectAttributes.addFlashAttribute("error", "注文が見つかりません。");
+            return "redirect:/admin/orders/list";
+        }
+
+        if (quantity == null || quantity < 1 || quantity > 5) {
+            redirectAttributes.addFlashAttribute("error", "数量は1から5の範囲で入力してください。");
+            return "redirect:/admin/orders/list";
+        }
+
+        order.setQuantity(quantity);
+        orderRepository.save(order);
+        redirectAttributes.addFlashAttribute("message", "注文数量を更新しました。");
+        return "redirect:/admin/orders/list";
+    }
+
+    @PostMapping("/admin/order/delete")
+    public String adminDeleteOrder(@RequestParam("orderId") Long orderId,
+            HttpSession session,
             RedirectAttributes redirectAttributes) {
 
         User loginUser = (User) session.getAttribute("loginUser");
@@ -112,15 +137,12 @@ public class AdminOrderListController {
         Order order = orderRepository.findById(orderId).orElse(null);
         if (order == null) {
             redirectAttributes.addFlashAttribute("error", "注文が見つかりません。");
-            return "admin-orders-list";
+            return "redirect:/admin/orders/list";
         }
 
-        orderRepository.delete(order);
-        redirectAttributes.addFlashAttribute("message", "注文をキャンセルしました。");
-        
+        orderRepository.deleteById(orderId);
+        redirectAttributes.addFlashAttribute("message", "注文を削除しました。");
+
         return "redirect:/admin/orders/list";
-
     }
-
 }
-

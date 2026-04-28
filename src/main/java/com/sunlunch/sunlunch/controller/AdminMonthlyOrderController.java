@@ -51,6 +51,9 @@ public class AdminMonthlyOrderController {
         Map<LocalDate,Integer> countMap =new TreeMap<>();
 
         for(Order order : orderList){
+            if (!Boolean.TRUE.equals(order.getPaid())) {
+                continue;
+            }
             LocalDate date = order.getOrderDate();
             int quantity = order.getQuantity() == null ? 1 : order.getQuantity();
             countMap.put(date,countMap.getOrDefault(date,0)+quantity);
@@ -62,6 +65,7 @@ public class AdminMonthlyOrderController {
         model.addAttribute("todayDate", today);
         model.addAttribute("todayCount", todayCount);
         int monthTotalOrders = orderList.stream()
+                .filter(order -> Boolean.TRUE.equals(order.getPaid()))
                 .mapToInt(order -> order.getQuantity() == null ? 1 : order.getQuantity())
                 .sum();
         model.addAttribute("monthTotalOrders", monthTotalOrders);

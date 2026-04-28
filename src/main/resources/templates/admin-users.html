@@ -222,6 +222,16 @@
             background: #ffcccc;
         }
 
+        .delete-btn-disabled {
+            background: #e5e7eb;
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+
+        .delete-btn-disabled:hover {
+            background: #e5e7eb;
+        }
+
         .myself-label {
             font-size: 12px;
             color: #777;
@@ -299,7 +309,11 @@
                     <td>
                         <form class="delete-form" method="post" action="/admin/users/delete">
                             <input type="hidden" name="userId" th:value="${u.id}">
-                            <button class="btn delete-btn" type="submit" th:attr="data-self=${u.id == loginUserId}">削除</button>
+                            <button class="btn delete-btn"
+                                    type="submit"
+                                    th:classappend="${u.id == loginUserId} ? ' delete-btn-disabled' : ''"
+                                    th:disabled="${u.id == loginUserId}"
+                                    th:text="${u.id == loginUserId} ? '削除不可' : '削除'">削除</button>
                             <span class="myself-label" th:if="${u.id == loginUserId}">（自分）</span>
                         </form>
                     </td>
@@ -350,7 +364,11 @@
                     <td>
                         <form class="delete-form" method="post" action="/admin/users/delete">
                             <input type="hidden" name="userId" th:value="${u.id}">
-                            <button class="btn delete-btn" type="submit" th:attr="data-self=${u.id == loginUserId}">削除</button>
+                            <button class="btn delete-btn"
+                                    type="submit"
+                                    th:classappend="${u.id == loginUserId} ? ' delete-btn-disabled' : ''"
+                                    th:disabled="${u.id == loginUserId}"
+                                    th:text="${u.id == loginUserId} ? '削除不可' : '削除'">削除</button>
                             <span class="myself-label" th:if="${u.id == loginUserId}">（自分）</span>
                         </form>
                     </td>
@@ -395,15 +413,6 @@
         var deleteForms = document.querySelectorAll(".delete-form");
         deleteForms.forEach(function (form) {
             form.addEventListener("submit", function (event) {
-                var button = form.querySelector(".delete-btn");
-                var isSelf = button && button.getAttribute("data-self") === "true";
-
-                if (isSelf) {
-                    alert("自分自身は削除できません。");
-                    event.preventDefault();
-                    return;
-                }
-
                 if (!confirm("このユーザーを削除します。よろしいですか？")) {
                     event.preventDefault();
                 }
